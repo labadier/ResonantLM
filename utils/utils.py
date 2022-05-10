@@ -15,7 +15,7 @@ def HugginFaceLoad(language, weigths_source):
 
   model = GPT2LMHeadModel.from_pretrained(os.path.join(prefix , params.model[language]))
   tokenizer = GPT2Tokenizer.from_pretrained(os.path.join(prefix , params.model[language]))
-  tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+  tokenizer.pad_token = tokenizer.bos_token
   
   return tokenizer, model
 
