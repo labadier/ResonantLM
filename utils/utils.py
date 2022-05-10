@@ -2,7 +2,7 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from torch.utils.data import Dataset, DataLoader
 from matplotlib import pyplot as plt
 
-from params import params
+from utils.params import params
 
 import os, torch, random
 import numpy as np, pandas as pd
@@ -17,7 +17,7 @@ def HugginFaceLoad(language, weigths_source):
   tokenizer = GPT2Tokenizer.from_pretrained(os.path.join(prefix , params.model[language]))
   tokenizer.add_special_tokens({'pad_token': '[PAD]'})
   
-  return model, tokenizer
+  return tokenizer, model
 
 class Data(Dataset):
 

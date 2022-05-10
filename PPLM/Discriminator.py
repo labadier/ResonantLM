@@ -35,10 +35,12 @@ class Discriminator(torch.nn.Module):
     super(Discriminator, self).__init__()
     self.tokenizer, self.encoder = HugginFaceLoad(language, weigths_mode)
     self.embed_size = self.encoder.transformer.config.hidden_size
+    self.max_length = params.ML
     self.lang = language
     
     self.classifier_head = classifier_head
     self.device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+    self.to(device=self.device)
 
   def load(self, path):
     print(f"{bcolors.OKCYAN}{bcolors.BOLD}Classifier Weights Loaded{bcolors.ENDC}") 
@@ -85,6 +87,9 @@ class Discriminator(torch.nn.Module):
 
       dev_acc = compute_acc('eval', out, log)
       print(f"{bcolors.OKCYAN}{bcolors.BOLD}Dev acc: {dev_acc}{bcolors.ENDC}")
+  
+  def makeOptimizer(self, lr, decay):
+    return torch.optim.Adam(self.parameters(), lr=lr, weight_decay=decay)
 
 
 

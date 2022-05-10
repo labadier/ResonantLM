@@ -505,7 +505,7 @@ def generate_text_pplm(
 
     return output_so_far, unpert_discrim_loss, loss_in_time
 
-def run_pplm_example(
+def run_pplm(
         pretrained_model="gpt2-medium",
         cond_text="",
         uncond=False,
