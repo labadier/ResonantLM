@@ -37,6 +37,7 @@ class Discriminator(torch.nn.Module):
     self.embed_size = self.encoder.transformer.config.hidden_size
     self.max_length = params.ML
     self.lang = language
+    self.loss_criterion = torch.nn.CrossEntropyLoss()
     
     self.classifier_head = classifier_head
     self.device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -57,7 +58,7 @@ class Discriminator(torch.nn.Module):
   def average_hidden_states(self, ids):
 
     mask = ids.attention_mask.ne(0).unsqueeze(2).repeat(1, 1, self.embed_size).float().to(self.device).detach()
-    hidden_states = self.encoder(**ids).last_hidden_state
+    hidden_states = self.encoder.transformer(**ids).last_hidden_state
     masked_hidden = hidden_states * mask
     avg_hidden = torch.sum(masked_hidden, dim=1) / (
                 torch.sum(mask, dim=1).detach() + params.EPSILON
@@ -91,6 +92,8 @@ class Discriminator(torch.nn.Module):
   def makeOptimizer(self, lr, decay):
     return torch.optim.Adam(self.parameters(), lr=lr, weight_decay=decay)
 
+  def computeLoss(self, outputs, data):
+    return self.loss_criterion(outputs, data['labels'].to(self.device) )
 
 
 

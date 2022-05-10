@@ -12,6 +12,7 @@ class params:
   MULTITASK = 'stl'
   PRET_MODE = 'offline'
   OUTPUT = '.'
+  EPSILON = 1e-8
 
   CLASS_SIZE = 2
   EMBD_SIZE = 1024
