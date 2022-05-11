@@ -734,4 +734,4 @@ if __name__ == '__main__':
                         help="verbosiry level")
 
     args = parser.parse_args()
-    run_pplm_example(**vars(args))
+    run_pplm(**vars(args))

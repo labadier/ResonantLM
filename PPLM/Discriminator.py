@@ -38,6 +38,7 @@ class Discriminator(torch.nn.Module):
     self.max_length = params.ML
     self.lang = language
     self.loss_criterion = torch.nn.CrossEntropyLoss()
+    self.best_acc = None
     
     self.classifier_head = classifier_head
     self.device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -198,4 +199,5 @@ def train_model_CV(model_name, lang, data, splits = 5, epoches = 4, batch_size =
     del trainloader
     del devloader
     del model
+    break
   return history
