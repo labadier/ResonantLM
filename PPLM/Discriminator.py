@@ -22,6 +22,10 @@ class ClassificationHead(torch.nn.Module):
         logits = self.mlp(hidden_state)
         return logits
 
+    def load(self, path, device):
+      self.load_state_dict(torch.load(path, map_location=device))
+      print(f"{bcolors.OKCYAN}{bcolors.BOLD}Classification Head Weights Loaded{bcolors.ENDC}") 
+
 class Discriminator(torch.nn.Module):
 
   """Transformer encoder followed by a Classification Head"""
@@ -79,8 +83,8 @@ class Discriminator(torch.nn.Module):
     
     self.eval()
     with torch.no_grad():
-      out = None
-      for k, text in enumerate(trainloader, 0):   
+      out, log = None, None
+      for data in trainloader:   
         labels = data['labels']
 
         dev_out = self(data)
