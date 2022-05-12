@@ -45,8 +45,8 @@ class Discriminator(torch.nn.Module):
     self.to(device=self.device)
 
   def load(self, path):
+    self.classifier_head.load_state_dict(torch.load(path, map_location=self.device))
     print(f"{bcolors.OKCYAN}{bcolors.BOLD}Classifier Weights Loaded{bcolors.ENDC}") 
-    self.load_state_dict(torch.load(path, map_location=self.device))
 
   def save(self, path):
     torch.save(self.classifier_head.state_dict(), path)

@@ -1,16 +1,15 @@
 import argparse
 import json
 from operator import add
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Tuple
 
 import numpy as np
 import torch
 import torch.nn.functional as F
 from torch.autograd import Variable
 from tqdm import trange
-from transformers import GPT2Tokenizer
-from transformers.file_utils import cached_path
-from transformers import GPT2LMHeadModel
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from transformers.file_utils import cached_path 
 
 from PPLM.Discriminator import ClassificationHead
 from utils.params import bcolors
@@ -510,10 +509,7 @@ def run_pplm(
         cond_text="",
         uncond=False,
         num_samples=1,
-        bag_of_words=None,
         discrim=None,
-        discrim_weights=None,
-        discrim_meta=None,
         class_label=-1,
         length=100,
         stepsize=0.02,
@@ -530,9 +526,38 @@ def run_pplm(
         kl_scale=0.01,
         seed=0,
         no_cuda=False,
-        colorama=False,
         verbosity='regular'
 ):
+
+    """
+
+        Generator of Guided Language Modeling
+
+        pretrained_model (str) : Pretrained unconditional language Modeling
+        cond_text (str) : Preconditional text for generating text
+        uncond (bool) : Set generator to generate from end-of-text as prefix
+        num_samples (int): Number of samples to generate from the modified latents
+        discrim (str): Discriminator model for conditioning langage modeling
+        class_label (int): Class label used for the discriminator
+        length (int): Length of generated text,
+        stepsize (float): Step size for updating latent representation with gradient (the learning rate from always)
+        temperature (float): for predicted logit values  
+        top_k (int): Top k for beam searching
+        sample (bool): if sample==1: Sample from logits distribution on generator else Sample top probable token,
+        num_iterations (int): Number of iterations for lantent updating
+        grad_length (int)
+        horizon_length (int): Length of future to optimize over
+        window_length (int): Window length to update latent representation
+        decay (bool): decay for window update of latent
+        gamma (float) : Scaling coefficient for the normalization term
+        gm_scale (float): [0, 1] for scaling logits from perturbed and unperturbed model combination
+        kl_scale (float): Kullback–Leibler scaling coeficient
+        seed (int): Seed for random
+        no_cuda (bool): if no_cuda == True: not to use cuda aceleration,
+        verbosity(str)
+
+    """
+
     # set Random seed
     torch.manual_seed(seed)
     np.random.seed(seed)
@@ -598,7 +623,6 @@ def run_pplm(
         context=tokenized_cond_text,
         device=device,
         num_samples=num_samples,
-        bag_of_words=bag_of_words,
         discrim=discrim,
         class_label=class_label,
         length=length,
@@ -648,13 +672,13 @@ def run_pplm(
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--pretrained_model",
-        "-M",
-        type=str,
-        default="gpt2-medium",
-        help="pretrained model name or path to local checkpoint",
-    )
+    # parser.add_argument(
+    #     "--pretrained_model",
+    #     "-M",
+    #     type=str,
+    #     default="gpt2-medium",
+    #     help="pretrained model name or path to local checkpoint",
+    # )
     parser.add_argument(
         "--cond_text", type=str, default="The lake",
         help="Prefix texts to condition on"
@@ -668,15 +692,6 @@ if __name__ == '__main__':
         type=int,
         default=1,
         help="Number of samples to generate from the modified latents",
-    )
-    parser.add_argument(
-        "--bag_of_words",
-        "-B",
-        type=str,
-        default=None,
-        help="Bags of words used for PPLM-BoW. "
-             "Either a BOW id (see list in code) or a filepath. "
-             "Multiple BoWs separated by ;",
     )
     parser.add_argument(
         "--discrim",

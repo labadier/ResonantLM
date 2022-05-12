@@ -79,8 +79,12 @@ def plot_training(history, language, measure='loss'):
   
 
 def load_data( path = None, eval=False):
+  
   if path is None:
     ds = hub.load(f"hub://activeloop/sentiment-140-{'test' if eval else 'train'}")
     data_frame = pd.DataFrame({'tweet':ds.tweet_text.data(), 'label':ds.sentiment_type.data().reshape(-1)})
     data_frame['label'] = data_frame['label'].apply(lambda row: int(row > 2))
     return data_frame['tweet'].to_numpy(),  data_frame['label'].astype(int).to_numpy()
+  
+  data_frame = pd.read_csv(path)
+  return data_frame['tweet'].to_numpy(),  data_frame['label'].astype(int).to_numpy()

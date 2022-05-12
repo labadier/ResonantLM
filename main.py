@@ -18,7 +18,6 @@ def check_params(args=None):
 
   parser.add_argument('-l', metavar='language', default='en', help='Task Language')
   parser.add_argument('-mode', metavar='mode', help='task')
-  parser.add_argument('-model', metavar='model', help='model to encode')
   parser.add_argument('-phase', metavar='phase', help='Phase')
   parser.add_argument('-lr', metavar='lrate', default = params.LR, type=float, help='learning rate')
   parser.add_argument('-tmode', metavar='tmode', default = 'online', help='Encoder Weights Mode')
@@ -43,9 +42,8 @@ if __name__ == '__main__':
   epoches = parameters.epoches
   batch_size = parameters.bs
   train_path = parameters.tp
-  mode = parameters.mode
-  model_name = parameters.model
-  
+  mode = parameters.mode 
+
   if mode == 'discriminator':
 
     if phase == 'train':
@@ -57,7 +55,7 @@ if __name__ == '__main__':
       dataTrain = {'text':text, 'labels': labels}
   
       history = train_model_CV(model_name=params.model[language].split('/')[-1], lang=language, data=dataTrain,
-                            epoches=epoches, batch_size=batch_size, lr=learning_rate, decay=decay, model_mode='online')
+                            epoches=epoches, batch_size=batch_size, lr=learning_rate, decay=decay, model_mode=mode_weigth)
     
       plot_training(history[-1], language, 'acc')
       exit(0)
@@ -71,7 +69,8 @@ if __name__ == '__main__':
       data = {'text':text, 'labels': labels}
 
       model = Discriminator(language=language, 
-                            classifier_head=ClassificationHead(params.CLASS_SIZE, params.EMBD_SIZE))
+                            classifier_head=ClassificationHead(params.CLASS_SIZE, params.EMBD_SIZE),
+                            weigths_mode=mode_weigth)
 
       if os.path.isfile(f"logs/{params.model[language].split('/')[-1]}_1.pt"):
           model.load(f"logs/{params.model[language].split('/')[-1]}_1.pt")
