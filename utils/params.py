@@ -1,7 +1,7 @@
 
 class params:
 
-  model = {'en': 'gpt2-medium'}
+  model = {'en': 'gpt2-medium'} #! TODO change to gpt2-medium
 
   LR, DECAY = 1e-5,  2e-5
   SPLITS = 5
@@ -15,7 +15,7 @@ class params:
   EPSILON = 1e-8
 
   CLASS_SIZE = 2
-  EMBD_SIZE = 1024
+  EMBD_SIZE = 768 #! TODO change to 1024
 
   twitter_api = {
     'APP_CONSUMER_KEY' : 'qhHfmJ6x7aUWCvtZUq4P43TDV',
@@ -34,3 +34,25 @@ class bcolors:
   ENDC = '\033[0m'
   BOLD = '\033[1m'
   UNDERLINE = '\033[4m'
+
+class PPLM:
+
+  num_samples=1,
+  discrim='sentiment',
+  class_label='pos',
+  length=100,
+  stepsize=0.02,
+  temperature=1.0,
+  top_k=10,
+  sample=True,
+  num_iterations=3,
+  grad_length=10000,
+  horizon_length=1,
+  window_length=0,
+  decay=False,
+  gamma=1.5,
+  gm_scale=0.8, #! moved to 0.8
+  kl_scale=0.01,
+  seed=21,
+  verbosity='regular'
+

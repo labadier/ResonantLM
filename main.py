@@ -4,7 +4,7 @@ import argparse, sys, os, numpy as np, torch, random
 from PPLM.Discriminator import train_model, train_model_CV, Discriminator
 from PPLM.Discriminator import ClassificationHead
 from PPLM.PPLM import run_pplm
-from utils.params import bcolors, params
+from utils.params import bcolors, params, PPLM as lmparams
 from utils.utils import plot_training, load_data
 
 
@@ -43,6 +43,7 @@ if __name__ == '__main__':
   batch_size = parameters.bs
   train_path = parameters.tp
   mode = parameters.mode 
+  seed = parameters.seed
 
   if mode == 'discriminator':
 
@@ -81,4 +82,13 @@ if __name__ == '__main__':
       model.predict(data)
 
   if mode == 'generate':
-    run_pplm()
+    run_pplm(pretrained_model=params.model[language],
+             cond_text=seed, num_samples=lmparams.num_samples, class_label= lmparams.class_label,
+             length=lmparams.length, stepsize = lmparams.stepsize, temperature=lmparams.temperature,
+             top_k = lmparams.top_k, sample=lmparams.sample, num_iterations=lmparams.num_iterations,
+             grad_length=lmparams.grad_length, horizon_length=lmparams.horizon_length,
+             window_length=lmparams.window_length, decay=lmparams.decay, gamma=lmparams.gamma,
+             gm_scale=lmparams.gm_scale, kl_scale=lmparams.kl_scale, seed=lmparams.seed,
+             verbosity=lmparams.verbosity)
+
+# %%
