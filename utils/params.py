@@ -15,7 +15,7 @@ class params:
   EPSILON = 1e-8
 
   CLASS_SIZE = 2
-  EMBD_SIZE = 768 #! TODO change to 1024
+  EMBD_SIZE = 1024 #! TODO change to 1024
 
   twitter_api = {
     'APP_CONSUMER_KEY' : 'qhHfmJ6x7aUWCvtZUq4P43TDV',
@@ -37,22 +37,22 @@ class bcolors:
 
 class PPLM:
 
-  num_samples=1,
-  discrim='sentiment',
-  class_label='pos',
-  length=100,
-  stepsize=0.02,
-  temperature=1.0,
-  top_k=10,
-  sample=True,
-  num_iterations=3,
-  grad_length=10000,
-  horizon_length=1,
-  window_length=0,
-  decay=False,
-  gamma=1.5,
-  gm_scale=0.8, #! moved to 0.8
-  kl_scale=0.01,
-  seed=21,
+  num_samples=1
+  discrim='sentiment'
+  class_label='neg'
+  length=50
+  stepsize=0.04
+  temperature=1.0
+  top_k=10
+  sample=True
+  num_iterations=3
+  grad_length=1000
+  horizon_length=3
+  window_length=0
+  decay=False
+  gamma=1.5
+  gm_scale=0.7 #! moved to 0.8 from 0.9
+  kl_scale=0.01
+  seed=23
   verbosity='regular'
 

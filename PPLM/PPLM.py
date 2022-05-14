@@ -1,18 +1,15 @@
-import argparse
-import json
 from operator import add
 from typing import Optional, Tuple
 
 import numpy as np
-import torch
+import torch, os
 import torch.nn.functional as F
 from torch.autograd import Variable
 from tqdm import trange
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
-from transformers.file_utils import cached_path 
 
 from PPLM.Discriminator import ClassificationHead
-from utils.params import bcolors
+from utils.params import bcolors, params
 
 PPLM_DISCRIM = 2
 SMALL_CONST = 1e-15
@@ -31,11 +28,11 @@ VERBOSITY_LEVELS = {
 
 DISCRIMINATOR_MODELS_PARAMS = {
     "sentiment": {
-        "path": 'logs/gpt2_1.pt',
+        "path": f"logs/{params.model['en']}_1.pt",
         "class_size": 2,
-        "embed_size": 768, #! TODO change to 1024
+        "embed_size": params.EMBD_SIZE, #! TODO change to 1024
         "default_class": 1,
-        "pretrained_model": "gpt2",  #! TODO change to gpt2-medium
+        "pretrained_model": params.model['en'],  #! TODO change to gpt2-medium
     },
 }
 
@@ -266,14 +263,14 @@ def get_classifier(
     if name is None:
         return None, None
 
-    params = DISCRIMINATOR_MODELS_PARAMS[name]
+    model_params = DISCRIMINATOR_MODELS_PARAMS[name]
     classifier = ClassificationHead(
-        class_size=params['class_size'],
-        embed_size=params['embed_size']
+        class_size=model_params['class_size'],
+        embed_size=model_params['embed_size']
     ).to(device)
     
-    if "path" in params:
-        resolved_archive_file = params["path"]
+    if "path" in model_params:
+        resolved_archive_file = model_params["path"]
     else:
         raise ValueError(f"{bcolors.FAIL}{bcolors.BOLD}Enter the pretrained discriminator path!{bcolors.ENDC}")
     classifier.load(resolved_archive_file, device)
@@ -528,6 +525,7 @@ def generate_text_pplm(
 
 def run_pplm(
         pretrained_model="gpt2-medium",
+        model_mode="online",
         cond_text="",
         uncond=False,
         num_samples=1,
@@ -601,8 +599,11 @@ def run_pplm(
                 "to discriminator's = {}".format(discrim, pretrained_model))
 
     # load pretrained model
+
+    prefix = 'data' if model_mode == 'offline' else ''
+
     model = GPT2LMHeadModel.from_pretrained(
-        pretrained_model,
+        os.path.join(prefix , pretrained_model),
         output_hidden_states=True,
         use_cache=True
     )
@@ -610,7 +611,7 @@ def run_pplm(
     model.eval()
 
     # load tokenizer
-    tokenizer = GPT2Tokenizer.from_pretrained(pretrained_model)
+    tokenizer = GPT2Tokenizer.from_pretrained(os.path.join(prefix , pretrained_model))
 
     # Freeze GPT-2 weights
     for param in model.parameters():
@@ -666,6 +667,9 @@ def run_pplm(
 
     # untokenize unperturbed text
     unpert_gen_text = tokenizer.decode(unpert_gen_tok_text.tolist()[0])
+    eot = unpert_gen_text[3:].find('<|endoftext|>')
+    unpert_gen_text = unpert_gen_text[: len(unpert_gen_text) if eot == -1 else eot]
+
 
     if verbosity_level >= REGULAR:
         print(f"{bcolors.OKCYAN}{bcolors.BOLD}{'=' * 80}{bcolors.ENDC}")
@@ -681,6 +685,8 @@ def run_pplm(
             # untokenize unperturbed text
             pert_gen_text = tokenizer.decode(pert_gen_tok_text.tolist()[0])
             print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Perturbed generated text{i+1} ={bcolors.ENDC}")
+            eot = pert_gen_text[3:].find('<|endoftext|>')
+            pert_gen_text = pert_gen_text[: len(pert_gen_text) if eot == -1 else eot]
             print(pert_gen_text)
             print()
         except:

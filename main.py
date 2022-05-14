@@ -81,9 +81,10 @@ if __name__ == '__main__':
 
       model.predict(data)
 
-  if mode == 'generate':
-    run_pplm(pretrained_model=params.model[language],
-             cond_text=seed, num_samples=lmparams.num_samples, class_label= lmparams.class_label,
+  if mode == 'generator':
+    run_pplm(pretrained_model=params.model[language], model_mode=mode_weigth,
+             cond_text=seed, num_samples=lmparams.num_samples, discrim=lmparams.discrim,
+             class_label= lmparams.class_label,
              length=lmparams.length, stepsize = lmparams.stepsize, temperature=lmparams.temperature,
              top_k = lmparams.top_k, sample=lmparams.sample, num_iterations=lmparams.num_iterations,
              grad_length=lmparams.grad_length, horizon_length=lmparams.horizon_length,
