@@ -17,13 +17,6 @@ class params:
   CLASS_SIZE = 2
   EMBD_SIZE = 1024 #! TODO change to 1024
 
-  twitter_api = {
-    'APP_CONSUMER_KEY' : 'qhHfmJ6x7aUWCvtZUq4P43TDV',
-    'APP_CONSUMER_SECRET' : 'IKgDkNZcOffx3ocoq1jmdqEFTuxFEF2LBDEmquW2nhi70pEM2t',
-    'ACCESS_TOKEN' : '3673976903-vcvLLCxdFGGJpUdIcFYAmrtQ38rwww4WzIHhJFA',
-    'ACCESS_TOKEN_SECRET' : 'vvpy6dZAvmBMSV2LIDIyr67msItKXChXa091lHH1JApre',
-  }
-
 class bcolors:
   HEADER = '\033[95m'
   OKBLUE = '\033[94m'
