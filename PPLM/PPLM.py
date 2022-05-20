@@ -215,7 +215,9 @@ def perturb_past(
                               dtype=torch.long)
 
         if content_guide is not None:
-          discrim_loss = (1.0 - paramspplm.semantic_weight)*ce_loss(prediction, label) + paramspplm.semantic_weight*torch.cosine_similarity(content_guide, new_accumulated_hidden)
+          discrim_loss = (1.0 - paramspplm.semantic_weight)*ce_loss(prediction, label) + \
+                      paramspplm.semantic_weight*torch.cosine_similarity(content_guide, new_accumulated_hidden/
+                                (curr_length + 1 + horizon_length))
         else:
           discrim_loss = ce_loss(prediction, label)
 
@@ -491,7 +493,7 @@ def full_text_generation(
   )
   
   hidden_sates_unperturbed = model(unpert_gen_tok_text).hidden_states
-  latent_generation = torch.sum(hidden_sates_unperturbed[-1].detach(), axis=1)
+  latent_generation = torch.mean(hidden_sates_unperturbed[-1].detach(), axis=1)
 
 
   if device == 'cuda':
