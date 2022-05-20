@@ -1,5 +1,6 @@
 from operator import add
 from typing import Optional, Tuple
+from matplotlib.pyplot import axis
 
 import numpy as np
 import torch, os
@@ -9,7 +10,7 @@ from tqdm import trange
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 
 from PPLM.Discriminator import ClassificationHead
-from utils.params import bcolors, params
+from utils.params import bcolors, params, PPLM as paramspplm
 
 PPLM_DISCRIM = 2
 SMALL_CONST = 1e-15
@@ -30,9 +31,9 @@ DISCRIMINATOR_MODELS_PARAMS = {
     "sentiment": {
         "path": f"logs/{params.model['en']}_1.pt",
         "class_size": 2,
-        "embed_size": params.EMBD_SIZE, #! TODO change to 1024
+        "embed_size": params.EMBD_SIZE, 
         "default_class": 1,
-        "pretrained_model": params.model['en'],  #! TODO change to gpt2-medium
+        "pretrained_model": params.model['en'],
     },
 }
 
@@ -43,6 +44,31 @@ def to_var(x, requires_grad=False, volatile=False, device='cuda'):
     elif device != 'cuda':
         x = x.to(device)
     return Variable(x, requires_grad=requires_grad, volatile=volatile)
+
+
+def get_classifier(
+        name: Optional[str],
+        class_label: str,
+        device: str
+) -> Tuple[Optional[ClassificationHead], Optional[int]]:
+
+    if name is None:
+        return None, None
+
+    model_params = DISCRIMINATOR_MODELS_PARAMS[name]
+    classifier = ClassificationHead(
+        class_size=model_params['class_size'],
+        embed_size=model_params['embed_size']
+    ).to(device)
+    
+    if "path" in model_params:
+        resolved_archive_file = model_params["path"]
+    else:
+        raise ValueError(f"{bcolors.FAIL}{bcolors.BOLD}Enter the pretrained discriminator path!{bcolors.ENDC}")
+    classifier.load(resolved_archive_file, device)
+    classifier.eval()
+
+    return classifier, (1 if class_label=='pos' else 0)
 
 
 def top_k_filter(logits, k, probs=False):
@@ -82,7 +108,8 @@ def perturb_past(
         gamma=1.5,
         kl_scale=0.01,
         device='cuda',
-        verbosity_level=REGULAR
+        verbosity_level=REGULAR,
+        content_guide=None
 ):
     # Generate inital perturbed past
 
@@ -149,6 +176,7 @@ def perturb_past(
         all_logits, all_hidden = model_output.logits, model_output.hidden_states
 
         hidden = all_hidden[-1]
+
         new_accumulated_hidden = accumulated_hidden + torch.sum(
             hidden,
             dim=1
@@ -185,7 +213,12 @@ def perturb_past(
         label = torch.tensor(prediction.shape[0] * [class_label],
                               device=device,
                               dtype=torch.long)
-        discrim_loss = ce_loss(prediction, label)
+
+        if content_guide is not None:
+          discrim_loss = (1.0 - paramspplm.semantic_weight)*ce_loss(prediction, label) + paramspplm.semantic_weight*torch.cosine_similarity(content_guide, new_accumulated_hidden)
+        else:
+          discrim_loss = ce_loss(prediction, label)
+
         if verbosity_level >= VERY_VERBOSE:
             print(" pplm_discrim_loss:", discrim_loss.data.cpu().numpy())
         loss += discrim_loss
@@ -254,120 +287,6 @@ def perturb_past(
     return pert_past, new_accumulated_hidden, grad_norms, loss_per_iter
 
 
-def get_classifier(
-        name: Optional[str],
-        class_label: str,
-        device: str
-) -> Tuple[Optional[ClassificationHead], Optional[int]]:
-
-    if name is None:
-        return None, None
-
-    model_params = DISCRIMINATOR_MODELS_PARAMS[name]
-    classifier = ClassificationHead(
-        class_size=model_params['class_size'],
-        embed_size=model_params['embed_size']
-    ).to(device)
-    
-    if "path" in model_params:
-        resolved_archive_file = model_params["path"]
-    else:
-        raise ValueError(f"{bcolors.FAIL}{bcolors.BOLD}Enter the pretrained discriminator path!{bcolors.ENDC}")
-    classifier.load(resolved_archive_file, device)
-    classifier.eval()
-
-    return classifier, (1 if class_label=='pos' else 0)
-
-def full_text_generation(
-        model,
-        tokenizer,
-        context=None,
-        num_samples=1,
-        device="cuda",
-        discrim=None,
-        class_label=None,
-        length=100,
-        stepsize=0.02,
-        temperature=1.0,
-        top_k=10,
-        sample=True,
-        num_iterations=3,
-        grad_length=10000,
-        horizon_length=1,
-        window_length=0,
-        decay=False,
-        gamma=1.5,
-        gm_scale=0.9,
-        kl_scale=0.01,
-        verbosity_level=REGULAR,
-        **kwargs
-):
-  classifier, class_id = get_classifier(
-    discrim,
-    class_label,
-    device
-    )
-
-  if classifier is not None:
-    print(f"{bcolors.OKBLUE}{bcolors.BOLD}Using PPLM-Discrim {discrim.upper()} {bcolors.ENDC}")
-  else: 
-    print(f"{bcolors.FAIL}{bcolors.BOLD}Specify a Discriminator{bcolors.ENDC}")
-    exit(1)
-
-  unpert_gen_tok_text, _, _ = generate_text_pplm( #! This is the unperturbed manner
-      model=model,
-      tokenizer=tokenizer,
-      context=context,
-      device=device,
-      length=length,
-      sample=sample,
-      perturb=False,
-      verbosity_level=verbosity_level
-  )
-
-
-  if device == 'cuda':
-    torch.cuda.empty_cache()
-
-    pert_gen_tok_texts = []
-    discrim_losses = []
-    losses_in_time = []
-
-  for i in range(num_samples):
-    pert_gen_tok_text, discrim_loss, loss_in_time = generate_text_pplm( 
-        model=model,
-        tokenizer=tokenizer,
-        context=context,
-        device=device,
-        perturb=True,
-        classifier=classifier,
-        class_label=class_id,
-        length=length,
-        stepsize=stepsize,
-        temperature=temperature,
-        top_k=top_k,
-        sample=sample,
-        num_iterations=num_iterations,
-        grad_length=grad_length,
-        horizon_length=horizon_length,
-        window_length=window_length,
-        decay=decay,
-        gamma=gamma,
-        gm_scale=gm_scale,
-        kl_scale=kl_scale,
-        verbosity_level=verbosity_level
-    )
-    pert_gen_tok_texts.append(pert_gen_tok_text)
-    if classifier is not None:
-      discrim_losses.append(discrim_loss.data.cpu().numpy())
-    losses_in_time.append(loss_in_time)
-
-  if device == 'cuda':
-    torch.cuda.empty_cache()
-
-  return unpert_gen_tok_text, pert_gen_tok_texts, discrim_losses, losses_in_time
-
-
 def generate_text_pplm(
         model,
         tokenizer,
@@ -390,7 +309,8 @@ def generate_text_pplm(
         gamma=1.5,
         gm_scale=0.9,
         kl_scale=0.01,
-        verbosity_level=REGULAR
+        verbosity_level=REGULAR,
+        content_guide=None
 ):
     output_so_far = None
     if context:
@@ -461,7 +381,8 @@ def generate_text_pplm(
                     gamma=gamma,
                     kl_scale=kl_scale,
                     device=device,
-                    verbosity_level=verbosity_level
+                    verbosity_level=verbosity_level,
+                    content_guide=content_guide
                 )
                 loss_in_time.append(loss_this_iter)
             else:
@@ -520,8 +441,100 @@ def generate_text_pplm(
         )
         if verbosity_level >= VERBOSE:
             print(tokenizer.decode(output_so_far.tolist()[0]))
-
     return output_so_far, unpert_discrim_loss, loss_in_time
+
+def full_text_generation(
+        model,
+        tokenizer,
+        context=None,
+        num_samples=1,
+        device="cuda",
+        discrim=None,
+        class_label=None,
+        length=100,
+        stepsize=0.02,
+        temperature=1.0,
+        top_k=10,
+        sample=True,
+        num_iterations=3,
+        grad_length=10000,
+        horizon_length=1,
+        window_length=0,
+        decay=False,
+        gamma=1.5,
+        gm_scale=0.9,
+        kl_scale=0.01,
+        verbosity_level=REGULAR,
+        **kwargs
+):
+  classifier, class_id = get_classifier(
+    discrim,
+    class_label,
+    device
+    )
+
+  if classifier is not None:
+    print(f"{bcolors.OKBLUE}{bcolors.BOLD}Using PPLM-Discrim {discrim.upper()} {bcolors.ENDC}")
+  else: 
+    print(f"{bcolors.FAIL}{bcolors.BOLD}Specify a Discriminator{bcolors.ENDC}")
+    exit(1)
+
+  unpert_gen_tok_text, _, _ = generate_text_pplm( #! This is the unperturbed manner
+      model=model,
+      tokenizer=tokenizer,
+      context=context,
+      device=device,
+      length=length,
+      sample=sample,
+      perturb=False,
+      verbosity_level=verbosity_level
+  )
+  
+  hidden_sates_unperturbed = model(unpert_gen_tok_text).hidden_states
+  latent_generation = torch.sum(hidden_sates_unperturbed[-1].detach(), axis=1)
+
+
+  if device == 'cuda':
+    torch.cuda.empty_cache()
+
+    pert_gen_tok_texts = []
+    discrim_losses = []
+    losses_in_time = []
+
+  for i in range(num_samples):
+    pert_gen_tok_text, discrim_loss, loss_in_time = generate_text_pplm( 
+        model=model,
+        tokenizer=tokenizer,
+        context=context,
+        device=device,
+        perturb=True,
+        classifier=classifier,
+        class_label=class_id,
+        length=length,
+        stepsize=stepsize,
+        temperature=temperature,
+        top_k=top_k,
+        sample=sample,
+        num_iterations=num_iterations,
+        grad_length=grad_length,
+        horizon_length=horizon_length,
+        window_length=window_length,
+        decay=decay,
+        gamma=gamma,
+        gm_scale=gm_scale,
+        kl_scale=kl_scale,
+        verbosity_level=verbosity_level,
+        content_guide=latent_generation
+    )
+    pert_gen_tok_texts.append(pert_gen_tok_text)
+    if classifier is not None:
+      discrim_losses.append(discrim_loss.data.cpu().numpy())
+    losses_in_time.append(loss_in_time)
+
+  if device == 'cuda':
+    torch.cuda.empty_cache()
+
+  return unpert_gen_tok_text, pert_gen_tok_texts, discrim_losses, losses_in_time
 
 def run_pplm(
         pretrained_model="gpt2-medium",

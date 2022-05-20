@@ -39,15 +39,15 @@ class PPLM:
 
   num_samples=1
   discrim='sentiment'
-  class_label='neg'
-  length=50
-  stepsize=0.04
+  class_label='pos'
+  length=100
+  stepsize=0.003
   temperature=1.0
   top_k=10
   sample=True
   num_iterations=3
   grad_length=1000
-  horizon_length=3
+  horizon_length=1
   window_length=0
   decay=False
   gamma=1.5
@@ -55,4 +55,5 @@ class PPLM:
   kl_scale=0.01
   seed=23
   verbosity='regular'
+  semantic_weight = 0.004
 
