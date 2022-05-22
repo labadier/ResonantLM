@@ -25,7 +25,9 @@ def check_params(args=None):
   parser.add_argument('-epoches', metavar='epoches', type=int, help='Trainning Epoches')
   parser.add_argument('-bs', metavar='batch_size', default=params.BS, type=int, help='Batch Size')
   parser.add_argument('-tp', metavar='train_path', help='Data path Training set')
-  parser.add_argument('-seed', metavar='seed', help='Seed for generting text')
+  parser.add_argument('-seed', metavar='seed',  default =params.seed, help='Seed for generting text')
+  parser.add_argument('-sw', metavar='sw', default =lmparams.semantic_weight, type=float, help='Semantic Wight for perturbing generation')
+  parser.add_argument('-gm', metavar='gm', default =lmparams.gm_scale, type=float, help='Scaling for generation distribution')
   
   return parser.parse_args(args)
 
@@ -44,6 +46,8 @@ if __name__ == '__main__':
   train_path = parameters.tp
   mode = parameters.mode 
   seed = parameters.seed
+  semantic_weight = parameters.sw
+  gm = parameters.gm
 
   if mode == 'discriminator':
 
@@ -89,7 +93,7 @@ if __name__ == '__main__':
              top_k = lmparams.top_k, sample=lmparams.sample, num_iterations=lmparams.num_iterations,
              grad_length=lmparams.grad_length, horizon_length=lmparams.horizon_length,
              window_length=lmparams.window_length, decay=lmparams.decay, gamma=lmparams.gamma,
-             gm_scale=lmparams.gm_scale, kl_scale=lmparams.kl_scale, seed=lmparams.seed,
-             verbosity=lmparams.verbosity)
+             gm_scale=gm, kl_scale=lmparams.kl_scale, seed=lmparams.seed,
+             verbosity=lmparams.verbosity, semantic_weight=semantic_weight)
 
 # %%

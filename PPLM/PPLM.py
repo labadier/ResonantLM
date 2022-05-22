@@ -109,7 +109,8 @@ def perturb_past(
         kl_scale=0.01,
         device='cuda',
         verbosity_level=REGULAR,
-        content_guide=None
+        content_guide=None,
+        semantic_weight = 0.2
 ):
     # Generate inital perturbed past
 
@@ -215,8 +216,8 @@ def perturb_past(
                               dtype=torch.long)
 
         if content_guide is not None:
-          discrim_loss = (1.0 - paramspplm.semantic_weight)*ce_loss(prediction, label) + \
-                      paramspplm.semantic_weight*torch.cosine_similarity(content_guide, new_accumulated_hidden/
+          discrim_loss = (1.0 - semantic_weight)*ce_loss(prediction, label) - \
+                      semantic_weight*torch.cosine_similarity(content_guide, new_accumulated_hidden/
                                 (curr_length + 1 + horizon_length))
         else:
           discrim_loss = ce_loss(prediction, label)
@@ -312,7 +313,8 @@ def generate_text_pplm(
         gm_scale=0.9,
         kl_scale=0.01,
         verbosity_level=REGULAR,
-        content_guide=None
+        content_guide=None,
+        semantic_weight=None
 ):
     output_so_far = None
     if context:
@@ -384,7 +386,8 @@ def generate_text_pplm(
                     kl_scale=kl_scale,
                     device=device,
                     verbosity_level=verbosity_level,
-                    content_guide=content_guide
+                    content_guide=content_guide,
+                    semantic_weight=semantic_weight
                 )
                 loss_in_time.append(loss_this_iter)
             else:
@@ -467,6 +470,7 @@ def full_text_generation(
         gm_scale=0.9,
         kl_scale=0.01,
         verbosity_level=REGULAR,
+        semantic_weight=0.2,
         **kwargs
 ):
   classifier, class_id = get_classifier(
@@ -526,7 +530,8 @@ def full_text_generation(
         gm_scale=gm_scale,
         kl_scale=kl_scale,
         verbosity_level=verbosity_level,
-        content_guide=latent_generation
+        content_guide=latent_generation,
+        semantic_weight=semantic_weight
     )
     pert_gen_tok_texts.append(pert_gen_tok_text)
     if classifier is not None:
@@ -561,7 +566,8 @@ def run_pplm(
         kl_scale=0.01,
         seed=0,
         no_cuda=False,
-        verbosity='regular'
+        verbosity='regular',
+        semantic_weight = 0.2
 ):
 
     """
@@ -677,19 +683,20 @@ def run_pplm(
         gamma=gamma,
         gm_scale=gm_scale,
         kl_scale=kl_scale,
-        verbosity_level=verbosity_level
+        verbosity_level=verbosity_level,
+        semantic_weight=semantic_weight
     )
 
     # untokenize unperturbed text
     unpert_gen_text = tokenizer.decode(unpert_gen_tok_text.tolist()[0])
     eot = unpert_gen_text[3:].find('<|endoftext|>')
-    unpert_gen_text = unpert_gen_text[: len(unpert_gen_text) if eot == -1 else eot]
+    unpert_gen_text = unpert_gen_text[: len(unpert_gen_text) if eot == -1 else eot+3]
 
 
     if verbosity_level >= REGULAR:
         print(f"{bcolors.OKCYAN}{bcolors.BOLD}{'=' * 80}{bcolors.ENDC}")
     print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Unperturbed generated text ={bcolors.ENDC}")
-    print(unpert_gen_text)
+    print(unpert_gen_text.replace('<|endoftext|>', ''))
     print()
 
     generated_texts = []
@@ -701,8 +708,8 @@ def run_pplm(
             pert_gen_text = tokenizer.decode(pert_gen_tok_text.tolist()[0])
             print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Perturbed generated text{i+1} ={bcolors.ENDC}")
             eot = pert_gen_text[3:].find('<|endoftext|>')
-            pert_gen_text = pert_gen_text[: len(pert_gen_text) if eot == -1 else eot]
-            print(pert_gen_text)
+            pert_gen_text = pert_gen_text[: len(pert_gen_text) if eot == -1 else eot+3]
+            print(pert_gen_text.replace('<|endoftext|>', ''))
             print()
         except:
             pass

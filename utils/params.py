@@ -14,6 +14,7 @@ class params:
   OUTPUT = '.'
   EPSILON = 1e-8
 
+  seed = "Why you don\'t like him"
   CLASS_SIZE = 2
   EMBD_SIZE = 1024 #! TODO change to 1024
 
@@ -34,19 +35,18 @@ class PPLM:
   discrim='sentiment'
   class_label='pos'
   length=100
-  stepsize=0.003
-  temperature=1.0
+  stepsize=0.02
+  temperature=1
   top_k=10
   sample=True
   num_iterations=3
-  grad_length=1000
+  grad_length=50
   horizon_length=1
   window_length=0
   decay=False
   gamma=1.5
-  gm_scale=0.7 #! moved to 0.8 from 0.9
+  gm_scale=0.9 #! moved to 0.8 from 0.9
   kl_scale=0.01
-  seed=23
+  seed=0
   verbosity='regular'
-  semantic_weight = 0.004
-
+  semantic_weight = .2
