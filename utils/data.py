@@ -59,8 +59,7 @@ def getResonanceInfo(text):
         for i in token['entry']['positiveFacets']:
           positivity['OCEAN'.find(i)] |= 1
         # relevant |= 1
-      # tokens += relevant
-  print(positivity, negativity)
+      # tokens += relevant 
   positivity = [positivity[i] if negativity[i] == 0 else -1 for i in range(5)] 
   return positivity
 
@@ -76,6 +75,4 @@ with open('data/resonance.csv', 'wt', newline='', encoding="utf-8") as csvfile:
       cleaned = strip_all_entities(strip_links(text.replace('\\n', ' ')))
       resonance = getResonanceInfo(cleaned)
       spamwriter.writerow([cleaned] + resonance)
-      break
-    break
 
