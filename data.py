@@ -99,8 +99,7 @@ with open('data/resonance.csv', 'wt', newline='', encoding="utf-8") as csvfile:
       spamwriter.writerow([cleaned] + resonance)
 
       processed += 1
-      break
-    break
+
 
   print(f"\r{bcolors.OKGREEN}{bcolors.BOLD}Analyzing Data ok{bcolors.ENDC}") 
 
