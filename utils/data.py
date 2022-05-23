@@ -1,8 +1,8 @@
 #%%
 from glob import glob
 import csv, pandas as pd, re, string
-from unittest import result
 import urllib.parse, requests, json
+from utils.params import bcolors
 
 
 PORT = 5201
@@ -27,9 +27,6 @@ def strip_all_entities(text):
                 words.append(word)
     return ' '.join(words)
 
-data_path = 'data/resonance'
-addrs = sorted(glob(data_path + '/*.csv'))
-
 def getResonanceInfo(text):
 
   query = f"http://{URL}:{PORT}/api/v1/analyzer/?text={urllib.parse.quote(text)}"
@@ -40,9 +37,11 @@ def getResonanceInfo(text):
     result = json.loads(response.text)
       
   except requests.exceptions.RequestException as e:  # This is the correct syntax
-    print(e)
+    with open('data/error.log', 'a') as logging: logging.write(text + '\n')
     return None
 
+  if 'disambiguate' not in result.keys():
+    return None
 
   positivity, negativity = [0]*5, [0]*5
   # tokens = 0
@@ -63,6 +62,20 @@ def getResonanceInfo(text):
   positivity = [positivity[i] if negativity[i] == 0 else -1 for i in range(5)] 
   return positivity
 
+
+
+data_path = 'data/resonance'
+addrs = sorted(glob(data_path + '/*.csv'))
+
+#compute amount of examples
+
+total = 0.0
+for file in addrs:
+  total += len(pd.read_csv(file, usecols=['text']))
+
+perc = 0.0
+processed = 0.0
+
 with open('data/resonance.csv', 'wt', newline='', encoding="utf-8") as csvfile:
   
   spamwriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -72,7 +85,24 @@ with open('data/resonance.csv', 'wt', newline='', encoding="utf-8") as csvfile:
     dataframe = pd.read_csv(file, usecols=['text'])
 
     for text in dataframe['text']:
+      
+      if processed/total - perc >= 0.0001:
+        perc = processed/total
+        print(f"\r{bcolors.OKGREEN}{bcolors.BOLD}Analyzing Data{bcolors.ENDC}: {perc*100.0:.2f}%", end="") 
+
       cleaned = strip_all_entities(strip_links(text.replace('\\n', ' ')))
       resonance = getResonanceInfo(cleaned)
+      
+      if resonance is None:
+        with open('data/error.log', 'a') as logging: logging.write(cleaned + '\n')
+        continue
       spamwriter.writerow([cleaned] + resonance)
 
+      processed += 1
+      break
+    break
+
+  print(f"\r{bcolors.OKGREEN}{bcolors.BOLD}Analyzing Data ok{bcolors.ENDC}") 
+
+
+# %%
