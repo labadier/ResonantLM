@@ -217,8 +217,8 @@ def perturb_past(
 
         if content_guide is not None:
           discrim_loss = (1.0 - semantic_weight)*ce_loss(prediction, label) - \
-                      semantic_weight*torch.cosine_similarity(content_guide, new_accumulated_hidden/
-                                (curr_length + 1 + horizon_length))
+                      semantic_weight*torch.cosine_similarity(content_guide, new_accumulated_hidden/(curr_length + 1 + horizon_length))
+                      #semantic_weight*torch.sqrt(torch.sum((content_guide - new_accumulated_hidden/(curr_length + 1 + horizon_length))**2))
         else:
           discrim_loss = ce_loss(prediction, label)
 

@@ -35,18 +35,26 @@ class PPLM:
   discrim='sentiment'
   class_label='pos'
   length=100
-  stepsize=0.02
+  stepsize=0.03
   temperature=1
   top_k=10
   sample=True
   num_iterations=3
   grad_length=50
-  horizon_length=1
+  horizon_length=2
   window_length=0
   decay=False
   gamma=1.5
   gm_scale=0.9 #! moved to 0.8 from 0.9
   kl_scale=0.01
-  seed=0
+  seed=113
   verbosity='regular'
   semantic_weight = .2
+
+
+# SW: 0.84  GM: 0.25
+#python main.py -mode generator -l en -tmode offline -sw 0.8 -gm 0.8 -seed "I hate them"
+#python main.py -mode generator -l en -tmode offline -sw 0.8 -gm 0.8 -seed "I'm not going to work cause I hate that"
+#python main.py -mode generator -l en -tmode offline -sw 0.8 -gm 0.8 -seed "I hate to work"
+#python main.py -mode generator -l en -tmode offline -sw 0.8 -gm 0.8 -seed "I don't even like your"
+

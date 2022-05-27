@@ -2,7 +2,7 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from torch.utils.data import Dataset, DataLoader
 from matplotlib import pyplot as plt
 
-from utils.params import params
+from utils.params import params, bcolors
 
 import os, torch, random
 import numpy as np, pandas as pd
@@ -84,6 +84,9 @@ def load_data( path = None, eval=False):
     
     ds = hub.load(f"hub://activeloop/sentiment-140-{'test' if eval else 'train'}")
     data_frame = pd.DataFrame({'tweet':ds.tweet_text.data(), 'label':ds.sentiment_type.data().reshape(-1)})
+    o_len = len(data_frame)
+    data_frame = data_frame[data_frame['label'] != 2]
+    print(f"{bcolors.WARNING}{bcolors.BOLD}{len(data_frame) - o_len} Examples Wasted !!{bcolors.ENDC}")
     data_frame['label'] = data_frame['label'].apply(lambda row: int(row > 2))
     return data_frame['tweet'].to_numpy(),  data_frame['label'].astype(int).to_numpy()
   
