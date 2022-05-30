@@ -86,7 +86,8 @@ def load_data( path = None, eval=False):
     data_frame = pd.DataFrame({'tweet':ds.tweet_text.data(), 'label':ds.sentiment_type.data().reshape(-1)})
     o_len = len(data_frame)
     data_frame = data_frame[data_frame['label'] != 2]
-    print(f"{bcolors.WARNING}{bcolors.BOLD}{len(data_frame) - o_len} Examples Wasted !!{bcolors.ENDC}")
+    print(f"{bcolors.WARNING}{bcolors.BOLD}{o_len - len(data_frame)} Examples Wasted !!{bcolors.ENDC}")
+    
     data_frame['label'] = data_frame['label'].apply(lambda row: int(row > 2))
     return data_frame['tweet'].to_numpy(),  data_frame['label'].astype(int).to_numpy()
   

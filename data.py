@@ -37,7 +37,7 @@ def getResonanceInfo(text):
     result = json.loads(response.text)
       
   except requests.exceptions.RequestException as e:  # This is the correct syntax
-    with open('data/error.log', 'a') as logging: logging.write(text + '\n')
+    with open('data/error_1.log', 'a') as logging: logging.write(text + '\n')
     return None
 
   if 'disambiguate' not in result.keys():
@@ -64,8 +64,9 @@ def getResonanceInfo(text):
 
 
 
-data_path = 'data/resonance'
-addrs = sorted(glob(data_path + '/*.csv'))
+data_path = 'data'
+# addrs = sorted(glob(data_path + '/*.csv'))
+addrs = [data_path + '/error.log']
 
 #compute amount of examples
 
@@ -94,7 +95,7 @@ with open('data/resonance.csv', 'wt', newline='', encoding="utf-8") as csvfile:
       resonance = getResonanceInfo(cleaned)
       
       if resonance is None:
-        with open('data/error.log', 'a') as logging: logging.write(cleaned + '\n')
+        with open('data/error_1.log', 'a') as logging: logging.write(cleaned + '\n')
         continue
       spamwriter.writerow([cleaned] + resonance)
 
