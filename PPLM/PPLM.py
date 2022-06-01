@@ -497,7 +497,7 @@ def full_text_generation(
   )
   
   hidden_sates_unperturbed = model(unpert_gen_tok_text).hidden_states
-  latent_generation = torch.mean(hidden_sates_unperturbed[-1].detach(), axis=1)
+  latent_generation_unpert = torch.mean(hidden_sates_unperturbed[-1].detach(), axis=1)
 
 
   if device == 'cuda':
@@ -507,6 +507,7 @@ def full_text_generation(
     discrim_losses = []
     losses_in_time = []
 
+  latent_generation_pert_sim = []
   for i in range(num_samples):
     pert_gen_tok_text, discrim_loss, loss_in_time = generate_text_pplm( 
         model=model,
@@ -530,17 +531,21 @@ def full_text_generation(
         gm_scale=gm_scale,
         kl_scale=kl_scale,
         verbosity_level=verbosity_level,
-        content_guide=latent_generation,
+        content_guide=latent_generation_unpert,
         semantic_weight=semantic_weight
     )
+
     pert_gen_tok_texts.append(pert_gen_tok_text)
+    hidden_sates_perturbed = model(pert_gen_tok_text).hidden_states
+    latent_generation_pert_sim += [torch.cosine_similarity(torch.mean(hidden_sates_perturbed[-1].detach(), axis=1), latent_generation_unpert) ]
+
     if classifier is not None:
       discrim_losses.append(discrim_loss.data.cpu().numpy())
     losses_in_time.append(loss_in_time)
 
   if device == 'cuda':
     torch.cuda.empty_cache()
-
+  pert_gen_tok_texts = [texts for _,texts in sorted(zip(latent_generation_pert_sim,pert_gen_tok_texts),reverse=True)]
   return unpert_gen_tok_text, pert_gen_tok_texts, discrim_losses, losses_in_time
 
 def run_pplm(
@@ -689,8 +694,10 @@ def run_pplm(
 
     # untokenize unperturbed text
     unpert_gen_text = tokenizer.decode(unpert_gen_tok_text.tolist()[0])
-    eot = unpert_gen_text[3:].find('<|endoftext|>')
-    unpert_gen_text = unpert_gen_text[: len(unpert_gen_text) if eot == -1 else eot+3]
+    eot = unpert_gen_text.rfind('<|endoftext|>')
+    unpert_gen_text = unpert_gen_text[: len(unpert_gen_text) if not eot else eot]
+    eot = unpert_gen_text.rfind('.')
+    unpert_gen_text = unpert_gen_text[: len(unpert_gen_text) if eot == -1 else eot+1]
 
 
     if verbosity_level >= REGULAR:
@@ -707,8 +714,10 @@ def run_pplm(
             # untokenize unperturbed text
             pert_gen_text = tokenizer.decode(pert_gen_tok_text.tolist()[0])
             print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Perturbed generated text{i+1} ={bcolors.ENDC}")
-            eot = pert_gen_text[3:].find('<|endoftext|>')
-            pert_gen_text = pert_gen_text[: len(pert_gen_text) if eot == -1 else eot+3]
+            eot = pert_gen_text.rfind('<|endoftext|>')
+            pert_gen_text = pert_gen_text[: len(pert_gen_text) if not eot else eot]
+            eot = pert_gen_text.rfind('.')
+            pert_gen_text = pert_gen_text[: len(pert_gen_text) if eot == -1 else eot+1]
             print(pert_gen_text.replace('<|endoftext|>', ''))
             print()
         except:

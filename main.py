@@ -28,7 +28,8 @@ def check_params(args=None):
   parser.add_argument('-seed', metavar='seed',  default =params.seed, help='Seed for generting text')
   parser.add_argument('-sw', metavar='sw', default =lmparams.semantic_weight, type=float, help='Semantic Wight for perturbing generation')
   parser.add_argument('-gm', metavar='gm', default =lmparams.gm_scale, type=float, help='Scaling for generation distribution')
-  
+  parser.add_argument('-bias', metavar='bias', default =lmparams.class_label, type=str, help='Class for Biasing Generation')
+   
   return parser.parse_args(args)
 
 if __name__ == '__main__':
@@ -48,6 +49,7 @@ if __name__ == '__main__':
   seed = parameters.seed
   semantic_weight = parameters.sw
   gm = parameters.gm
+  bias = parameters.bias
 
   if mode == 'discriminator':
 
@@ -88,7 +90,7 @@ if __name__ == '__main__':
   if mode == 'generator':
     run_pplm(pretrained_model=params.model[language], model_mode=mode_weigth,
              cond_text=seed, num_samples=lmparams.num_samples, discrim=lmparams.discrim,
-             class_label= lmparams.class_label,
+             class_label= bias,
              length=lmparams.length, stepsize = lmparams.stepsize, temperature=lmparams.temperature,
              top_k = lmparams.top_k, sample=lmparams.sample, num_iterations=lmparams.num_iterations,
              grad_length=lmparams.grad_length, horizon_length=lmparams.horizon_length,

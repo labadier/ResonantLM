@@ -83,7 +83,7 @@ with open('data/resonance.csv', 'wt', newline='', encoding="utf-8") as csvfile:
   spamwriter.writerow(['text', 'O', 'C', 'E', 'A', 'N'])
 
   for file in addrs:
-    dataframe = pd.read_csv(file, usecols=['text'])
+    dataframe = pd.read_csv(file, usecols=['text']).fillna('')
 
     for text in dataframe['text']:
       
