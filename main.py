@@ -29,6 +29,7 @@ def check_params(args=None):
   parser.add_argument('-sw', metavar='sw', default =lmparams.semantic_weight, type=float, help='Semantic Wight for perturbing generation')
   parser.add_argument('-gm', metavar='gm', default =lmparams.gm_scale, type=float, help='Scaling for generation distribution')
   parser.add_argument('-bias', metavar='bias', default =lmparams.class_label, type=str, help='Class for Biasing Generation')
+  parser.add_argument('-nsamples', metavar='nsamples', default =lmparams.num_samples, type=str, help='Number of samples for generation')
    
   return parser.parse_args(args)
 
@@ -50,6 +51,7 @@ if __name__ == '__main__':
   semantic_weight = parameters.sw
   gm = parameters.gm
   bias = parameters.bias
+  nsamples = parameters.nsamples
 
   if mode == 'discriminator':
 
@@ -89,7 +91,7 @@ if __name__ == '__main__':
 
   if mode == 'generator':
     run_pplm(pretrained_model=params.model[language], model_mode=mode_weigth,
-             cond_text=seed, num_samples=lmparams.num_samples, discrim=lmparams.discrim,
+             cond_text=seed, num_samples=nsamples, discrim=lmparams.discrim,
              class_label= bias,
              length=lmparams.length, stepsize = lmparams.stepsize, temperature=lmparams.temperature,
              top_k = lmparams.top_k, sample=lmparams.sample, num_iterations=lmparams.num_iterations,
