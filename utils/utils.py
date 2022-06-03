@@ -88,7 +88,17 @@ def load_data( path = None, eval=False):
     data_frame = data_frame[data_frame['label'] != 2]
     print(f"{bcolors.WARNING}{bcolors.BOLD}{o_len - len(data_frame)} Examples Wasted !!{bcolors.ENDC}")
     
+    o_len = o_len - len(data_frame)
     data_frame['label'] = data_frame['label'].apply(lambda row: int(row > 2))
+
+    emolex = pd.read_csv('data/emolex_en.csv', usecols=['English (en)', 'Positive', 'Negative'])
+    x_pos = emolex[emolex['Positive'] == 1][['English (en)', 'Positive']].rename({'English (en)':'tweet', 'Positive':'label'}, axis='columns')
+    x_neg = emolex[emolex['Negative'] == 1][['English (en)','Negative']].rename({'English (en)':'tweet', 'Negative':'label'}, axis='columns')
+    x_neg['label'] = x_neg['label'].apply(lambda row: 0)
+
+    data_frame = pd.concat([x_pos, x_neg, data_frame])
+
+    print(f"{bcolors.WARNING}{bcolors.BOLD}{len(data_frame) - o_len} Examples Added !!{bcolors.ENDC}")
     return data_frame['tweet'].to_numpy(),  data_frame['label'].astype(int).to_numpy()
   
   data_frame = pd.read_csv(path)
