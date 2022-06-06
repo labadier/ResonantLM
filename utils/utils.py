@@ -102,4 +102,5 @@ def load_data( path = None, eval=False):
     return data_frame['tweet'].to_numpy(),  data_frame['label'].astype(int).to_numpy()
   
   data_frame = pd.read_csv(path)
-  return data_frame['tweet'].to_numpy(),  data_frame['label'].astype(int).to_numpy()
+  labels = data_frame['C'].astype(int).apply(lambda row: int(row == 1)).to_numpy() # 40-60
+  return data_frame['text'].to_numpy(),  labels
