@@ -29,6 +29,17 @@ class bcolors:
   BOLD = '\033[1m'
   UNDERLINE = '\033[4m'
 
+  # HEADER = ''
+  # OKBLUE = ''
+  # OKCYAN = ''
+  # OKGREEN = ''
+  # WARNING = ''
+  # FAIL = ''
+  # ENDC = ''
+  # BOLD = ''
+  # UNDERLINE = ''
+
+
 class PPLM:
 
   num_samples=1
