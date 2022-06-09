@@ -103,4 +103,5 @@ def load_data( path = None, eval=False):
   
   data_frame = pd.read_csv(path)
   labels = data_frame['C'].astype(int).apply(lambda row: int(row == 1)).to_numpy() # 40-60
+  print(f"{bcolors.OKCYAN}{bcolors.BOLD}{len(labels)} Examples Loaded with {np.sum(labels)/len(labels):.2f} Positive Balance!!{bcolors.ENDC}")
   return data_frame['text'].to_numpy(),  labels

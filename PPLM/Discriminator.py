@@ -16,7 +16,7 @@ class ClassificationHead(torch.nn.Module):
         super(ClassificationHead, self).__init__()
         self.class_size = class_size
         self.embed_size = embed_size
-        self.mlp = torch.nn.Sequential([torch.nn.Linear(embed_size, 64), torch.nn.LeakyReLU(),torch.nn.Linear(64, class_size)])
+        self.mlp = torch.nn.Sequential(torch.nn.Linear(embed_size, 64), torch.nn.LeakyReLU(),torch.nn.Linear(64, class_size))
 
     def forward(self, hidden_state):
         logits = self.mlp(hidden_state)
