@@ -12,6 +12,8 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from PPLM.Discriminator import ClassificationHead
 from utils.params import bcolors, params, PPLM as paramspplm
 
+from data import getResonanceInfo
+
 PPLM_DISCRIM = 2
 SMALL_CONST = 1e-15
 BIG_CONST = 1e10
@@ -29,7 +31,21 @@ VERBOSITY_LEVELS = {
 
 DISCRIMINATOR_MODELS_PARAMS = {
     "sentiment": {
-        "path": f"logs/{params.model['en']}_1.pt",
+        "path": "logs/sentiment.pt",
+        "class_size": 2,
+        "embed_size": params.EMBD_SIZE, 
+        "default_class": 1,
+        "pretrained_model": params.model['en'],
+    },
+    "conscientiousness": {
+        "path": "logs/conscientiousness.pt",
+        "class_size": 2,
+        "embed_size": params.EMBD_SIZE, 
+        "default_class": 1,
+        "pretrained_model": params.model['en'],
+    },
+    "agreeableness": {
+        "path": "logs/agreeableness.pt",
         "class_size": 2,
         "embed_size": params.EMBD_SIZE, 
         "default_class": 1,
@@ -713,13 +729,19 @@ def run_pplm(
         try:
             # untokenize unperturbed text
             pert_gen_text = tokenizer.decode(pert_gen_tok_text.tolist()[0])
-            print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Perturbed generated text{i+1} ={bcolors.ENDC}")
+            
             eot = pert_gen_text.rfind('<|endoftext|>')
             pert_gen_text = pert_gen_text[: len(pert_gen_text) if not eot else eot]
             eot = pert_gen_text.rfind('.')
             pert_gen_text = pert_gen_text[: len(pert_gen_text) if eot == -1 else eot+1]
-            print(pert_gen_text.replace('<|endoftext|>', ''))
-            print()
+            pert_gen_text = pert_gen_text.replace('<|endoftext|>', '')
+            
+
+            resonance = getResonanceInfo(pert_gen_text)
+            resonance = ' '.join([f'{f}: {i}' for f, i in zip('OCEAN', resonance)])
+
+            print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Perturbed generated text{i+1}  {resonance}={bcolors.ENDC}")
+            print(pert_gen_text, end='\n\n')
         except:
             pass
 

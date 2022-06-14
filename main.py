@@ -17,6 +17,7 @@ def check_params(args=None):
   parser = argparse.ArgumentParser(description='Language Model Encoder')
 
   parser.add_argument('-l', metavar='language', default='en', help='Task Language')
+  parser.add_argument('-dt', metavar='disrciminator_task', default=lmparams.discrim, help='Task Discriminator')
   parser.add_argument('-mode', metavar='mode', help='task')
   parser.add_argument('-phase', metavar='phase', help='Phase')
   parser.add_argument('-lr', metavar='lrate', default = params.LR, type=float, help='learning rate')
@@ -52,6 +53,7 @@ if __name__ == '__main__':
   gm = parameters.gm
   bias = parameters.bias
   nsamples = parameters.nsamples
+  d_task = parameters.dt
 
   if mode == 'discriminator':
 
@@ -63,7 +65,7 @@ if __name__ == '__main__':
       text, labels = load_data(train_path)
       dataTrain = {'text':text, 'labels': labels}
   
-      history = train_model_CV(model_name=params.model[language].split('/')[-1], lang=language, data=dataTrain,
+      history = train_model_CV(model_name=d_task, lang=language, data=dataTrain,
                             epoches=epoches, batch_size=batch_size, lr=learning_rate, decay=decay, model_mode=mode_weigth)
     
       plot_training(history[-1], language, 'acc')
@@ -91,7 +93,7 @@ if __name__ == '__main__':
 
   if mode == 'generator':
     run_pplm(pretrained_model=params.model[language], model_mode=mode_weigth,
-             cond_text=seed, num_samples=nsamples, discrim=lmparams.discrim,
+             cond_text=seed, num_samples=nsamples, discrim=d_task,
              class_label= bias,
              length=lmparams.length, stepsize = lmparams.stepsize, temperature=lmparams.temperature,
              top_k = lmparams.top_k, sample=lmparams.sample, num_iterations=lmparams.num_iterations,

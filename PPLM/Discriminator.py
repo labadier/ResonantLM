@@ -132,10 +132,10 @@ def train_model(model_name, model, trainloader, devloader, epoches, lr, decay, o
       # print statistics
       with torch.no_grad():
         if j == 0:
-          acc = compute_acc(model_name, outputs, data)
+          acc = compute_acc('train', outputs, data)
           running_loss = loss.item()
         else: 
-          acc = (acc + compute_acc(model_name, outputs, data))/2.0
+          acc = (acc + compute_acc('train', outputs, data))/2.0
           running_loss = (running_loss + loss.item())/2.0
 
       if (j+1)*100.0/batches - perc  >= 1 or j == batches-1:
@@ -170,7 +170,7 @@ def train_model(model_name, model, trainloader, devloader, epoches, lr, decay, o
 
     band = False
     if model.best_acc is None or model.best_acc < dev_acc:
-      model.save(os.path.join(output, f'{model_name}_{split}.pt'))
+      model.save(os.path.join(output, f'{model_name}.pt'))
       model.best_acc = dev_acc
       band = True
 
