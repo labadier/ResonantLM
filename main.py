@@ -1,4 +1,3 @@
-#%%
 import argparse, sys, os, numpy as np, torch, random
 
 from PPLM.Discriminator import train_model, train_model_CV, Discriminator
@@ -62,7 +61,7 @@ if __name__ == '__main__':
         os.system('mkdir logs')
 
       
-      text, labels = load_data(train_path)
+      text, labels = load_data(path = train_path, task = d_task)
       dataTrain = {'text':text, 'labels': labels}
   
       history = train_model_CV(model_name=d_task, lang=language, data=dataTrain,
@@ -76,7 +75,7 @@ if __name__ == '__main__':
       '''
         Get Encodings for each author's message from the Transformer-based encoders
       '''
-      text, labels = load_data(train_path, eval = True)
+      text, labels = load_data(path = train_path, eval = True, task = d_task)
       data = {'text':text, 'labels': labels}
 
       model = Discriminator(language=language, 
@@ -101,5 +100,3 @@ if __name__ == '__main__':
              window_length=lmparams.window_length, decay=lmparams.decay, gamma=lmparams.gamma,
              gm_scale=gm, kl_scale=lmparams.kl_scale, seed=lmparams.seed,
              verbosity=lmparams.verbosity, semantic_weight=semantic_weight)
-
-# %%

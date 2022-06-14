@@ -1,4 +1,3 @@
-#%%
 from glob import glob
 import csv, pandas as pd, re, string
 import urllib.parse, requests, json
@@ -104,5 +103,3 @@ if __name__ == '__main__':
 
     print(f"\r{bcolors.OKGREEN}{bcolors.BOLD}Analyzing Data ok{bcolors.ENDC}") 
 
-
-# %%

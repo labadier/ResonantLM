@@ -77,9 +77,9 @@ def plot_training(history, language, measure='loss'):
   plt.savefig('./logs/train_history_{}.png'.format(language))
   
 
-def load_data( path = None, eval=False):
+def load_data( path = None, eval=False, task='sentiment'):
   
-  if path is None:
+  if task == 'sentiment':
     import hub
     
     ds = hub.load(f"hub://activeloop/sentiment-140-{'test' if eval else 'train'}")
@@ -102,6 +102,6 @@ def load_data( path = None, eval=False):
     return data_frame['tweet'].to_numpy(),  data_frame['label'].astype(int).to_numpy()
   
   data_frame = pd.read_csv(path)
-  labels = data_frame['C'].astype(int).apply(lambda row: int(row == 1)).to_numpy() # 40-60
-  print(f"{bcolors.OKCYAN}{bcolors.BOLD}{len(labels)} Examples Loaded with {np.sum(labels)/len(labels):.2f} Positive Balance!!{bcolors.ENDC}")
+  labels = data_frame[task.upper()[0]].astype(int).apply(lambda row: int(row == 1)).to_numpy() # 40-60
+  print(f"{bcolors.OKCYAN}{bcolors.BOLD}{len(labels)} Examples Loaded with {np.sum(labels)/len(labels):.2f} Positive Balance for {task.upper()}!!{bcolors.ENDC}")
   return data_frame['text'].to_numpy(),  labels
