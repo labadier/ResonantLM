@@ -29,30 +29,6 @@ VERBOSITY_LEVELS = {
     'very_verbose': VERY_VERBOSE,
 }
 
-DISCRIMINATOR_MODELS_PARAMS = {
-    "sentiment": {
-        "path": "logs/sentiment.pt",
-        "class_size": 2,
-        "embed_size": params.EMBD_SIZE, 
-        "default_class": 1,
-        "pretrained_model": params.model['en'],
-    },
-    "conscientiousness": {
-        "path": "logs/conscientiousness.pt",
-        "class_size": 2,
-        "embed_size": params.EMBD_SIZE, 
-        "default_class": 1,
-        "pretrained_model": params.model['en'],
-    },
-    "agreeableness": {
-        "path": "logs/agreeableness.pt",
-        "class_size": 2,
-        "embed_size": params.EMBD_SIZE, 
-        "default_class": 1,
-        "pretrained_model": params.model['en'],
-    },
-}
-
 
 def to_var(x, requires_grad=False, volatile=False, device='cuda'):
     if torch.cuda.is_available() and device == 'cuda':
@@ -71,7 +47,7 @@ def get_classifier(
     if name is None:
         return None, None
 
-    model_params = DISCRIMINATOR_MODELS_PARAMS[name]
+    model_params = paramspplm.DISCRIMINATOR_MODELS_PARAMS[name]
     classifier = ClassificationHead(
         class_size=model_params['class_size'],
         embed_size=model_params['embed_size']
@@ -631,7 +607,7 @@ def run_pplm(
     device = "cuda" if torch.cuda.is_available() and not no_cuda else "cpu"
 
     if discrim is not None:
-        discriminator_pretrained_model = DISCRIMINATOR_MODELS_PARAMS[discrim][
+        discriminator_pretrained_model = paramspplm.DISCRIMINATOR_MODELS_PARAMS[discrim][
             "pretrained_model"
         ]
         if pretrained_model != discriminator_pretrained_model:

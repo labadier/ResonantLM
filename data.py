@@ -63,46 +63,46 @@ def getResonanceInfo(text):
   return positivity
 
 
+if __name__ == '__main__':
+  data_path = 'data'
+  # addrs = sorted(glob(data_path + '/*.csv'))
+  addrs = [data_path + '/error.log']
 
-data_path = 'data'
-# addrs = sorted(glob(data_path + '/*.csv'))
-addrs = [data_path + '/error.log']
+  #compute amount of examples
 
-#compute amount of examples
-
-total = 0.0
-for file in addrs:
-  total += len(pd.read_csv(file, usecols=['text']))
-
-perc = 0.0
-processed = 0.0
-
-with open('data/resonance.csv', 'wt', newline='', encoding="utf-8") as csvfile:
-  
-  spamwriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-  spamwriter.writerow(['text', 'O', 'C', 'E', 'A', 'N'])
-
+  total = 0.0
   for file in addrs:
-    dataframe = pd.read_csv(file, usecols=['text']).fillna('')
+    total += len(pd.read_csv(file, usecols=['text']))
 
-    for text in dataframe['text']:
-      
-      if processed/total - perc >= 0.0001:
-        perc = processed/total
-        print(f"\r{bcolors.OKGREEN}{bcolors.BOLD}Analyzing Data{bcolors.ENDC}: {perc*100.0:.2f}%", end="") 
+  perc = 0.0
+  processed = 0.0
 
-      cleaned = strip_all_entities(strip_links(text.replace('\\n', ' ')))
-      resonance = getResonanceInfo(cleaned)
-      
-      if resonance is None:
-        with open('data/error_1.log', 'a') as logging: logging.write(cleaned + '\n')
-        continue
-      spamwriter.writerow([cleaned] + resonance)
+  with open('data/resonance.csv', 'wt', newline='', encoding="utf-8") as csvfile:
+    
+    spamwriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    spamwriter.writerow(['text', 'O', 'C', 'E', 'A', 'N'])
 
-      processed += 1
+    for file in addrs:
+      dataframe = pd.read_csv(file, usecols=['text']).fillna('')
+
+      for text in dataframe['text']:
+        
+        if processed/total - perc >= 0.0001:
+          perc = processed/total
+          print(f"\r{bcolors.OKGREEN}{bcolors.BOLD}Analyzing Data{bcolors.ENDC}: {perc*100.0:.2f}%", end="") 
+
+        cleaned = strip_all_entities(strip_links(text.replace('\\n', ' ')))
+        resonance = getResonanceInfo(cleaned)
+        
+        if resonance is None:
+          with open('data/error_1.log', 'a') as logging: logging.write(cleaned + '\n')
+          continue
+        spamwriter.writerow([cleaned] + resonance)
+
+        processed += 1
 
 
-  print(f"\r{bcolors.OKGREEN}{bcolors.BOLD}Analyzing Data ok{bcolors.ENDC}") 
+    print(f"\r{bcolors.OKGREEN}{bcolors.BOLD}Analyzing Data ok{bcolors.ENDC}") 
 
 
 # %%

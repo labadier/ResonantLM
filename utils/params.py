@@ -61,6 +61,30 @@ class PPLM:
   seed=113
   verbosity='regular'
   semantic_weight = .2
+  
+  DISCRIMINATOR_MODELS_PARAMS = {
+    "sentiment": {
+        "path": "logs/sentiment.pt",
+        "class_size": 2,
+        "embed_size": params.EMBD_SIZE, 
+        "default_class": 1,
+        "pretrained_model": params.model['en'],
+    },
+    "conscientiousness": {
+        "path": "logs/conscientiousness.pt",
+        "class_size": 2,
+        "embed_size": params.EMBD_SIZE, 
+        "default_class": 1,
+        "pretrained_model": params.model['en'],
+    },
+    "agreeableness": {
+        "path": "logs/agreeableness.pt",
+        "class_size": 2,
+        "embed_size": params.EMBD_SIZE, 
+        "default_class": 1,
+        "pretrained_model": params.model['en'],
+    },
+}
 
 
 # SW: 0.84  GM: 0.25
