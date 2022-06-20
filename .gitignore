@@ -6,3 +6,7 @@ gpt2_1.pt
 resonance*
 *.out
 NRC-Emotion-Lexicon-v0.92-In105Languages-Nov2017Translations.xlsx
+data/sentiment140-train.cs_tmp
+data/acepciones_palabras.csv
+data/sentiment140-train.csv
+debug.py
