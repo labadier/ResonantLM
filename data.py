@@ -4,7 +4,7 @@ import urllib.parse, requests, json
 from utils.params import bcolors
 
 
-PORT = 5201
+PORT = 5501
 URL = 'localhost' #'hddevp.no-ip.org'
 def strip_links(text):
     link_regex    = re.compile('((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)', re.DOTALL)
@@ -35,8 +35,7 @@ def getResonanceInfo(text):
     response.raise_for_status()
     result = json.loads(response.text)
       
-  except requests.exceptions.RequestException as e:  # This is the correct syntax
-    with open('data/error_1.log', 'a') as logging: logging.write(text + '\n')
+  except requests.exceptions.RequestException as e: 
     return None
 
   if 'disambiguate' not in result.keys():
