@@ -86,7 +86,7 @@ if __name__ == '__main__':
   processed = 0.0
 
   wasted = 0
-  with open('data/resonance.csv', 'wt', newline='', encoding="utf-8") as csvfile:
+  with open('data/resonance.torncal.csv', 'wt', newline='', encoding="utf-8") as csvfile:
     
     spamwriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     spamwriter.writerow(['text', 'O', 'C', 'E', 'A', 'N'])
@@ -100,6 +100,7 @@ if __name__ == '__main__':
           perc = processed/total
           print(f"\r{bcolors.OKGREEN}{bcolors.BOLD}Analyzing Data{bcolors.ENDC}: {perc*100.0:.2f}%", end="") 
 
+        processed += 1
         if not len(TREE.findall(text)):
           wasted += 1
           continue
@@ -112,7 +113,7 @@ if __name__ == '__main__':
           continue
         spamwriter.writerow([cleaned] + resonance)
 
-        processed += 1
+        
 
 
     print(f"\r{bcolors.OKGREEN}{bcolors.BOLD}Analyzing Data ok. Wasted {wasted} of {len(dataframe['text'])}{bcolors.ENDC}") 
