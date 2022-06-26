@@ -5,7 +5,7 @@ from utils.params import bcolors
 
 
 PORT = 5501
-URL = 'localhost' #'hddevp.no-ip.org'
+URL = 'hddevp.no-ip.org' #'hddevp.no-ip.org'
 def strip_links(text):
     link_regex    = re.compile('((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)', re.DOTALL)
     links         = re.findall(link_regex, text)
