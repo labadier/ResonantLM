@@ -42,7 +42,7 @@ class bcolors:
 
 class PPLM:
 
-  num_samples=1
+  num_samples=3
   discrim='sentiment'
   class_label='pos'
   length=30
@@ -56,11 +56,11 @@ class PPLM:
   window_length=0
   decay=False
   gamma=1.5
-  gm_scale=0.9 #! moved to 0.8 from 0.9
+  gm_scale=0.4 #! moved to 0.8 from 0.9
   kl_scale=0.01
   seed=113
   verbosity='regular'
-  semantic_weight = .2
+  semantic_weight = 0.0
   
   DISCRIMINATOR_MODELS_PARAMS = {
     "sentiment": {

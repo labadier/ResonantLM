@@ -17,7 +17,7 @@ def check_params(args=None):
 
   parser.add_argument('-l', metavar='language', default='en', help='Task Language')
   parser.add_argument('-dt', metavar='disrciminator_task', default=lmparams.discrim, help='Task Discriminator')
-  parser.add_argument('-mode', metavar='mode', help='task')
+  parser.add_argument('-mode', metavar='mode', default='generator', help='task')
   parser.add_argument('-phase', metavar='phase', help='Phase')
   parser.add_argument('-lr', metavar='lrate', default = params.LR, type=float, help='learning rate')
   parser.add_argument('-tmode', metavar='tmode', default = 'online', help='Encoder Weights Mode')
