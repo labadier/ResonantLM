@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
   data_path = 'data'
   # addrs = sorted(glob(data_path + '/*.csv'))
-  TREE = load_keywords_tree('agreeableness')
+  TREE = load_keywords_tree('openness')
 
   addrs = [data_path + '/sentiment140-train.csv']
 
@@ -86,7 +86,7 @@ if __name__ == '__main__':
   processed = 0.0
 
   wasted = 0
-  with open('data/resonance.torncal.csv', 'wt', newline='', encoding="utf-8") as csvfile:
+  with open('data/resonance.torncal.devanotation.csv', 'wt', newline='', encoding="utf-8") as csvfile:
     
     spamwriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     spamwriter.writerow(['text', 'O', 'C', 'E', 'A', 'N'])

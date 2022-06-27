@@ -83,6 +83,13 @@ class PPLM:
         "embed_size": params.EMBD_SIZE, 
         "default_class": 1,
         "pretrained_model": params.model['en'],
+    },    
+    "openness": {
+        "path": "logs/openness.pt",
+        "class_size": 2,
+        "embed_size": params.EMBD_SIZE, 
+        "default_class": 1,
+        "pretrained_model": params.model['en'],
     },
 }
 
