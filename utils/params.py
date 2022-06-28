@@ -70,14 +70,14 @@ class PPLM:
         "default_class": 1,
         "pretrained_model": params.model['en'],
     },
-    "conscientiousness": {
+    "conscientiousness": { #! Ready
         "path": "logs/conscientiousness.pt",
         "class_size": 2,
         "embed_size": params.EMBD_SIZE, 
         "default_class": 1,
         "pretrained_model": params.model['en'],
     },
-    "agreeableness": {
+    "agreeableness": { #! Ready
         "path": "logs/agreeableness.pt",
         "class_size": 2,
         "embed_size": params.EMBD_SIZE, 
@@ -86,6 +86,20 @@ class PPLM:
     },    
     "openness": {
         "path": "logs/openness.pt",
+        "class_size": 2,
+        "embed_size": params.EMBD_SIZE, 
+        "default_class": 1,
+        "pretrained_model": params.model['en'],
+    },
+    "extraversion": {
+        "path": "logs/extraversion.pt",
+        "class_size": 2,
+        "embed_size": params.EMBD_SIZE, 
+        "default_class": 1,
+        "pretrained_model": params.model['en'],
+    },
+    "neuroticism": {
+        "path": "logs/extraversion.pt",
         "class_size": 2,
         "embed_size": params.EMBD_SIZE, 
         "default_class": 1,
