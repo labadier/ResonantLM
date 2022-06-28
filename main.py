@@ -52,7 +52,7 @@ if __name__ == '__main__':
   gm = parameters.gm
   bias = parameters.bias
   nsamples = parameters.nsamples
-  d_task = parameters.dt
+  d_task = [d_task for d_task in lmparams.DISCRIMINATOR_MODELS_PARAMS.keys() if not d_task.find(parameters.dt.lower())][0]
 
   if mode == 'discriminator':
 
