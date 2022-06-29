@@ -652,7 +652,7 @@ def run_pplm(
         )
 
     print("= Prefix of sentence =")
-    print(tokenizer.decode(tokenized_cond_text))
+    print(tokenizer.decode(tokenized_cond_text).replace('<|endoftext|>', ''))
     print()
 
     # generate unperturbed and perturbed texts
