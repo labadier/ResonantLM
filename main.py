@@ -52,9 +52,10 @@ if __name__ == '__main__':
   gm = parameters.gm
   bias = parameters.bias
   nsamples = parameters.nsamples
-  d_task = [d_task for d_task in lmparams.DISCRIMINATOR_MODELS_PARAMS.keys() if not d_task.find(parameters.dt.lower())][0]
 
   if mode == 'discriminator':
+
+    d_task = [d_task for d_task in lmparams.DISCRIMINATOR_MODELS_PARAMS.keys() if not d_task.find(parameters.dt.lower())][0]
 
     if phase == 'train':
       if os.path.exists('./logs') == False:
@@ -91,12 +92,21 @@ if __name__ == '__main__':
       model.predict(data)
 
   if mode == 'generator':
-    run_pplm(pretrained_model=params.model[language], model_mode=mode_weigth,
-             cond_text=seed, num_samples=nsamples, discrim=d_task,
-             class_label= bias,
-             length=lmparams.length, stepsize = lmparams.stepsize, temperature=lmparams.temperature,
-             top_k = lmparams.top_k, sample=lmparams.sample, num_iterations=lmparams.num_iterations,
-             grad_length=lmparams.grad_length, horizon_length=lmparams.horizon_length,
-             window_length=lmparams.window_length, decay=lmparams.decay, gamma=lmparams.gamma,
-             gm_scale=gm, kl_scale=lmparams.kl_scale, seed=lmparams.seed,
-             verbosity=lmparams.verbosity, semantic_weight=semantic_weight)
+
+    printunperturbed = True
+
+    for i in lmparams.DISCRIMINATOR_MODELS_PARAMS.keys():
+      if i.lower()[0] not in parameters.dt.lower():
+        continue
+
+      run_pplm(pretrained_model=params.model[language], model_mode=mode_weigth,
+              cond_text=seed, num_samples=nsamples, discrim=i.lower(),
+              class_label= bias,
+              length=lmparams.length, stepsize = lmparams.stepsize, temperature=lmparams.temperature,
+              top_k = lmparams.top_k, sample=lmparams.sample, num_iterations=lmparams.num_iterations,
+              grad_length=lmparams.grad_length, horizon_length=lmparams.horizon_length,
+              window_length=lmparams.window_length, decay=lmparams.decay, gamma=lmparams.gamma,
+              gm_scale=gm, kl_scale=lmparams.kl_scale, seed=lmparams.seed,
+              verbosity=lmparams.verbosity, semantic_weight=semantic_weight, print_unperturbed=printunperturbed)
+      
+      printunperturbed &= False

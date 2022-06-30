@@ -463,6 +463,7 @@ def full_text_generation(
         kl_scale=0.01,
         verbosity_level=REGULAR,
         semantic_weight=0.2,
+        print_unperturbed=True,
         **kwargs
 ):
   classifier, class_id = get_classifier(
@@ -564,7 +565,8 @@ def run_pplm(
         seed=0,
         no_cuda=False,
         verbosity='regular',
-        semantic_weight = 0.2
+        semantic_weight = 0.2,
+        print_unperturbed = True
 ):
 
     """
@@ -651,9 +653,10 @@ def run_pplm(
             add_special_tokens=False
         )
 
-    print("= Prefix of sentence =")
-    print(tokenizer.decode(tokenized_cond_text).replace('<|endoftext|>', ''))
-    print()
+    if print_unperturbed:
+      print("= Prefix of sentence =")
+      print(tokenizer.decode(tokenized_cond_text).replace('<|endoftext|>', ''))
+      print()
 
     # generate unperturbed and perturbed texts
 
@@ -681,7 +684,8 @@ def run_pplm(
         gm_scale=gm_scale,
         kl_scale=kl_scale,
         verbosity_level=verbosity_level,
-        semantic_weight=semantic_weight
+        semantic_weight=semantic_weight,
+        print_unperturbed=print_unperturbed
     )
 
     # untokenize unperturbed text
@@ -692,11 +696,11 @@ def run_pplm(
     unpert_gen_text = unpert_gen_text[: len(unpert_gen_text) if eot == -1 else eot+1]
 
 
-    if verbosity_level >= REGULAR:
+    if verbosity_level >= REGULAR and print_unperturbed:
         print(f"{bcolors.OKCYAN}{bcolors.BOLD}{'=' * 80}{bcolors.ENDC}")
-    print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Unperturbed generated text ={bcolors.ENDC}")
-    print(unpert_gen_text.replace('<|endoftext|>', ''))
-    print()
+        print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Unperturbed generated text ={bcolors.ENDC}")
+        print(unpert_gen_text.replace('<|endoftext|>', ''))
+        print()
 
     generated_texts = []
 
