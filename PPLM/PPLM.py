@@ -696,11 +696,12 @@ def run_pplm(
     unpert_gen_text = unpert_gen_text[: len(unpert_gen_text) if eot == -1 else eot+1]
 
 
-    if verbosity_level >= REGULAR and print_unperturbed:
+    if verbosity_level >= REGULAR:
         print(f"{bcolors.OKCYAN}{bcolors.BOLD}{'=' * 80}{bcolors.ENDC}")
-        print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Unperturbed generated text ={bcolors.ENDC}")
-        print(unpert_gen_text.replace('<|endoftext|>', ''))
-        print()
+        if print_unperturbed:
+            print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Unperturbed generated text ={bcolors.ENDC}")
+            print(unpert_gen_text.replace('<|endoftext|>', ''))
+            print()
 
     generated_texts = []
 
