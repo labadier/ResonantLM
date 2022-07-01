@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
   data_path = 'data'
   # addrs = sorted(glob(data_path + '/*.csv'))
-  TREE = load_keywords_tree('openness')
+  TREE = load_keywords_tree('conscientiousness')
 
   addrs = [data_path + '/sentiment140-train.csv']
 
