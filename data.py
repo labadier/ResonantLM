@@ -1,7 +1,8 @@
 from glob import glob
 import csv, pandas as pd, re, string
 import urllib.parse, requests, json
-from utils.params import bcolors
+from utils.params import bcolors, PPLM as lmparams
+import argparse, sys
 
 
 PORT = 5501
@@ -31,7 +32,7 @@ def getResonanceInfo(text):
   query = f"http://{URL}:{PORT}/api/v1/analyzer/?text={urllib.parse.quote(text)}"
 
   try:
-    response = requests.request("POST", query)
+    response = requests.request("POST", query, timeout=3.0)
     response.raise_for_status()
     result = json.loads(response.text)
       
@@ -61,21 +62,41 @@ def getResonanceInfo(text):
   return positivity
 
 
-def load_keywords_tree(faceta):
+def load_keywords_tree(facetas):
 
-  with open(f'data/meta_{faceta}.txt') as file:
-    keywords = '|'.join([i[:-1] for i in file])
+  keywords = '' 
+  for f in facetas:
+    with open(f'data/meta_{f}.txt') as file:
+      keywords = '|'.join([i[:-1] for i in file]) if keywords == '' else keywords + '|'.join([i[:-1] for i in file])
 
   return re.compile(keywords, re.IGNORECASE)
 
+def check_params(args=None):
+  parser = argparse.ArgumentParser(description='Language Model Encoder')
+
+  parser.add_argument('-m', metavar='mode', help='Either simple or filter')
+  parser.add_argument('-f', metavar='faceta', default=None, help='personalities to filter')
+  parser.add_argument('-s', metavar='sourcefile', help='source file')
+  parser.add_argument('-o', metavar='outputfile', help='output file')
+  parser.add_argument('-e', metavar='errorfile', help='erorr loger file')
+  return parser.parse_args(args)
 
 if __name__ == '__main__':
 
-  data_path = 'data'
-  # addrs = sorted(glob(data_path + '/*.csv'))
-  TREE = load_keywords_tree('conscientiousness')
 
-  addrs = [data_path + '/sentiment140-train.csv']
+  parameters = check_params(sys.argv[1:])
+
+
+  data_path = parameters.s
+  mode = parameters.m
+  filters = parameters.f
+  output = parameters.o
+  errorlogs = parameters.e
+  
+  
+  TREE = load_keywords_tree([i for i in lmparams.DISCRIMINATOR_MODELS_PARAMS.keys() if i.lower()[0] in filters.lower()]) if mode == 'filter' else None
+
+  addrs = [data_path]
 
   #compute amount of examples
   total = 0.0
@@ -86,7 +107,7 @@ if __name__ == '__main__':
   processed = 0.0
 
   wasted = 0
-  with open('data/resonance.torncal.devanotation.csv', 'wt', newline='', encoding="utf-8") as csvfile:
+  with open(output, 'wt', newline='', encoding="utf-8") as csvfile:
     
     spamwriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     spamwriter.writerow(['text', 'O', 'C', 'E', 'A', 'N'])
@@ -101,7 +122,7 @@ if __name__ == '__main__':
           print(f"\r{bcolors.OKGREEN}{bcolors.BOLD}Analyzing Data{bcolors.ENDC}: {perc*100.0:.2f}%", end="") 
 
         processed += 1
-        if not len(TREE.findall(text)):
+        if mode == 'filter' and not len(TREE.search(text)):
           wasted += 1
           continue
 
@@ -109,12 +130,9 @@ if __name__ == '__main__':
         resonance = getResonanceInfo(cleaned)
         
         if resonance is None:
-          with open('data/error_1.log', 'a') as logging: logging.write(cleaned + '\n')
+          with open(errorlogs, 'a') as logging: logging.write(cleaned + '\n')
           continue
         spamwriter.writerow([cleaned] + resonance)
-
-        
-
 
     print(f"\r{bcolors.OKGREEN}{bcolors.BOLD}Analyzing Data ok. Wasted {wasted} of {len(dataframe['text'])}{bcolors.ENDC}") 
 
