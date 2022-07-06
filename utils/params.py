@@ -71,7 +71,7 @@ class PPLM:
         "pretrained_model": params.model['en'],
     },
     "conscientiousness": { #! Ready
-        "path": "logs/conscientiousness.pt",
+        "path": "logs/v1/conscientiousness.pt",
         "class_size": 2,
         "embed_size": params.EMBD_SIZE, 
         "default_class": 1,
