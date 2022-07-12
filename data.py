@@ -6,8 +6,8 @@ from utils.params import bcolors, PPLM as lmparams
 import argparse, sys
 
 
-PORT = 5201
-URL = 'localhost' #'hddevp.no-ip.org'
+PORT = 5501
+URL = 'hddevp.no-ip.org'
 STEP = 200
 
 def strip_links(text):
@@ -140,7 +140,7 @@ if __name__ == '__main__':
         text = ''
         for j in dataframe[i: i + STEP]:
           text += j.strip()
-          text += ' sin. THxISISROBXERTOXTOXKEN. ' if text[-1] not in '.;?*' else ' THxISISROBXERTOXTOXKEN. '
+          text += ' puntual. THxISISROBXERTOXTOXKEN. ' if text[-1] not in '.;?*' else ' THxISISROBXERTOXTOXKEN. '
 
         resonance = getResonanceInfo(text)
         #! implement from here
