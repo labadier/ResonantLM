@@ -78,7 +78,7 @@ class PPLM:
         "pretrained_model": params.model['en'],
     },
     "agreeableness": { #! Ready
-        "path": "logs/v1/agreeableness.pt",
+        "path": "logs/agreeableness.pt",
         "class_size": 2,
         "embed_size": params.EMBD_SIZE, 
         "default_class": 1,

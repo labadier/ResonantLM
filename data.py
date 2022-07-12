@@ -6,8 +6,8 @@ from utils.params import bcolors, PPLM as lmparams
 import argparse, sys
 
 
-PORT = 5501
-URL = 'hddevp.no-ip.org' #'hddevp.no-ip.org'
+PORT = 5201
+URL = 'localhost' #'hddevp.no-ip.org'
 STEP = 200
 
 def strip_links(text):
@@ -148,7 +148,7 @@ if __name__ == '__main__':
         if resonance is None:
           with open(errorlogs, 'a') as logging: 
             for j in dataframe[i: i + STEP]:
-               logging.write(dataframe[j] + '\n')
+               logging.write(j + '\n')
           continue
 
         for text, annotations in zip(dataframe[i: i + STEP], resonance):
