@@ -12,7 +12,7 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from PPLM.Discriminator import ClassificationHead
 from utils.params import bcolors, params, PPLM as paramspplm
 
-from data1 import getResonanceInfo
+from data import getResonanceInfo
 
 PPLM_DISCRIM = 2
 SMALL_CONST = 1e-15

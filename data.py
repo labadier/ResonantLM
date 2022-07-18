@@ -30,7 +30,7 @@ def strip_all_entities(text):
                 words.append(word)
     return ' '.join(words)
 
-def getResonanceInfo(text):
+def getBacthResonanceInfo(text):
 
   query = f"http://{URL}:{PORT}/api/v1/analyzer/?text={urllib.parse.quote(text)}"
 
@@ -68,6 +68,40 @@ def getResonanceInfo(text):
     positivity = [positivity[i] if negativity[i] == 0 else -1 for i in range(5)] 
   return annotation
 
+#! TODO parametrize in getBatchResonanceInfo
+def getResonanceInfo(text):
+
+  query = f"http://{URL}:{PORT}/api/v1/analyzer/?text={urllib.parse.quote(text)}"
+
+  try:
+    response = requests.request("POST", query, timeout=3.0)
+    response.raise_for_status()
+    result = json.loads(response.text)
+      
+  except requests.exceptions.RequestException as e: 
+    return None
+
+  if 'disambiguate' not in result.keys():
+    return None
+
+  positivity, negativity = [0]*5, [0]*5
+  # tokens = 0
+  for sentence in result['disambiguate']:
+    for token in sentence['sentence']:
+
+      relevant = 0
+      if 'negativeFacets' in token['entry'].keys():
+        for i in token['entry']['negativeFacets']:
+          negativity['OCEAN'.find(i)] |= 1
+        # relevant |= 1
+
+      if 'positiveFacets' in token['entry'].keys():
+        for i in token['entry']['positiveFacets']:
+          positivity['OCEAN'.find(i)] |= 1
+        # relevant |= 1
+      # tokens += relevant 
+  positivity = [positivity[i] if negativity[i] == 0 else -1 for i in range(5)] 
+  return positivity
 
 
 def load_keywords_tree(facetas):
@@ -142,9 +176,7 @@ if __name__ == '__main__':
           text += j.strip()
           text += ' puntual. THxISISROBXERTOXTOXKEN. ' if text[-1] not in '.;?*' else ' THxISISROBXERTOXTOXKEN. '
 
-        resonance = getResonanceInfo(text)
-        #! implement from here
-        
+        resonance = getBacthResonanceInfo(text)
         if resonance is None:
           with open(errorlogs, 'a') as logging: 
             for j in dataframe[i: i + STEP]:
