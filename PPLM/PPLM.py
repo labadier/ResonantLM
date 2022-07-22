@@ -550,7 +550,7 @@ def full_text_generation(
   if device == 'cuda':
     torch.cuda.empty_cache()
   
-  pert_gen_tok_texts = latent_generation_pert_sim, pert_gen_tok_texts
+  pert_gen_tok_texts = zip(latent_generation_pert_sim, pert_gen_tok_texts)
   return unpert_gen_tok_text, pert_gen_tok_texts, discrim_losses, losses_in_time
 
 def run_pplm(
@@ -722,7 +722,7 @@ def run_pplm(
     for i, pert_gen_tok_text in enumerate(pert_gen_tok_texts):
         try:
             # untokenize unperturbed text
-            pert_gen_text = tokenizer.decode(pert_gen_tok_text[1])
+            pert_gen_text = tokenizer.decode(pert_gen_tok_text[1].tolist()[0])
             pert_gen_text_modified = evaluate_ending( pert_gen_text, length)
             pert_gen_text = pert_gen_text_modified if pert_gen_text_modified else pert_gen_text
             
@@ -733,9 +733,9 @@ def run_pplm(
             pert_gen_text = pert_gen_text.replace('<|endoftext|>', '')
             
             resonance = getResonanceInfo(pert_gen_text)
-            resonance = ' '.join([f'{f}: {j}' for f, j in zip('OCEAN', resonance)])
-
-            unsorted += [(resonance['ocean'.find(discrim.lower()[0])], pert_gen_tok_text[0], pert_gen_tok_text[1])]
+            unsorted += [(resonance['ocean'.find(discrim.lower()[0])], pert_gen_tok_text[0].item(), pert_gen_text, 
+                        ' '.join([f'{f}: {j}' for f, j in zip('OCEAN', resonance)]))]
+                        
         except:
             pass
 
@@ -743,12 +743,13 @@ def run_pplm(
         generated_texts.append(
             (tokenized_cond_text, pert_gen_tok_text, unpert_gen_tok_text)
         )
+    unsorted.sort(reverse=True)
+    pert_gen_tok_texts = [(_text[-2], _text[-1]) for _text in sorted(unsorted, reverse=True)]
 
-
-    pert_gen_tok_text = sorted(unsorted, reverse=True)
-    for i, pert_gen_tok_text in enumerate(pert_gen_tok_texts):
-      print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Perturbed generated text{i+1}  {resonance}={bcolors.ENDC}")
-      print(pert_gen_text[-1], end='\n\n')
+    # print(pert_gen_tok_texts)
+    for i, pert_gen_text in enumerate(pert_gen_tok_texts):
+      print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Perturbed generated text{i+1}  {pert_gen_text[-1]}={bcolors.ENDC}")
+      print(pert_gen_text[0], end='\n\n')
     return
 
 

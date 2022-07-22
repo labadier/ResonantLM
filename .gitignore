@@ -10,3 +10,5 @@ data/sentiment140-train.cs_tmp
 data/acepciones_palabras.csv
 data/sentiment140-train.csv
 debug.py
+logs
+tmp.csv

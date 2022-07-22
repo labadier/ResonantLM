@@ -175,7 +175,7 @@ if __name__ == '__main__':
         for j in dataframe[i: i + STEP]:
           text += j.strip()
           if not len(text):
-            text = ['errorxt']
+            text += ' Errorxt. '
           text += ' puntual. THxISISROBXERTOXTOXKEN. ' if text[-1] not in '.;?*' else ' THxISISROBXERTOXTOXKEN. '
 
         resonance = getBacthResonanceInfo(text)
