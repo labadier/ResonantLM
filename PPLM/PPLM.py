@@ -62,6 +62,17 @@ def get_classifier(
 
     return classifier, (1 if class_label=='pos' else 0)
 
+def evaluate_ending( text, length, lower_bound = 0.75, upper_bound = 1.5):
+  
+  ending = -1
+  for i in '.!;?':
+    ending = max(ending, text.rfind(i))
+
+  if ending >= length*lower_bound:
+    return text[:ending+1]
+  elif len(text.split()) >= length*upper_bound:
+    return text
+  return False
 
 def top_k_filter(logits, k, probs=False):
     """
@@ -320,12 +331,11 @@ def generate_text_pplm(
     unpert_discrim_loss = 0
     loss_in_time = []
 
-    if verbosity_level >= VERBOSE:
-        range_func = trange(length, ascii=True)
-    else:
-        range_func = range(length)
+    i = 0 
+    while True:
 
-    for i in range_func:
+        if i >= length and evaluate_ending(tokenizer.decode(output_so_far.tolist()[0]), length):
+          break
 
         # Get past/probs for current output, except for last word
         # Note that GPT takes 2 inputs: past + current_token
@@ -438,6 +448,7 @@ def generate_text_pplm(
         )
         if verbosity_level >= VERBOSE:
             print(tokenizer.decode(output_so_far.tolist()[0]))
+        i +=1
     return output_so_far, unpert_discrim_loss, loss_in_time
 
 def full_text_generation(
@@ -538,7 +549,8 @@ def full_text_generation(
 
   if device == 'cuda':
     torch.cuda.empty_cache()
-  pert_gen_tok_texts = [texts for _,texts in sorted(zip(latent_generation_pert_sim,pert_gen_tok_texts),reverse=True)]
+  
+  pert_gen_tok_texts = latent_generation_pert_sim, pert_gen_tok_texts
   return unpert_gen_tok_text, pert_gen_tok_texts, discrim_losses, losses_in_time
 
 def run_pplm(
@@ -687,7 +699,7 @@ def run_pplm(
         semantic_weight=semantic_weight,
         print_unperturbed=print_unperturbed
     )
-
+    
     # untokenize unperturbed text
     unpert_gen_text = tokenizer.decode(unpert_gen_tok_text.tolist()[0])
     eot = unpert_gen_text.rfind('<|endoftext|>')
@@ -704,12 +716,15 @@ def run_pplm(
             print()
 
     generated_texts = []
-
+    unsorted = []
+    
     # iterate through the perturbed texts
     for i, pert_gen_tok_text in enumerate(pert_gen_tok_texts):
         try:
             # untokenize unperturbed text
-            pert_gen_text = tokenizer.decode(pert_gen_tok_text.tolist()[0])
+            pert_gen_text = tokenizer.decode(pert_gen_tok_text[1])
+            pert_gen_text_modified = evaluate_ending( pert_gen_text, length)
+            pert_gen_text = pert_gen_text_modified if pert_gen_text_modified else pert_gen_text
             
             eot = pert_gen_text.rfind('<|endoftext|>')
             pert_gen_text = pert_gen_text[: len(pert_gen_text) if not eot else eot]
@@ -717,12 +732,10 @@ def run_pplm(
             pert_gen_text = pert_gen_text[: len(pert_gen_text) if eot == -1 else eot+1]
             pert_gen_text = pert_gen_text.replace('<|endoftext|>', '')
             
-
             resonance = getResonanceInfo(pert_gen_text)
-            resonance = ' '.join([f'{f}: {i}' for f, i in zip('OCEAN', resonance)])
+            resonance = ' '.join([f'{f}: {j}' for f, j in zip('OCEAN', resonance)])
 
-            print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Perturbed generated text{i+1}  {resonance}={bcolors.ENDC}")
-            print(pert_gen_text, end='\n\n')
+            unsorted += [(resonance['ocean'.find(discrim.lower()[0])], pert_gen_tok_text[0], pert_gen_tok_text[1])]
         except:
             pass
 
@@ -730,6 +743,12 @@ def run_pplm(
         generated_texts.append(
             (tokenized_cond_text, pert_gen_tok_text, unpert_gen_tok_text)
         )
+
+
+    pert_gen_tok_text = sorted(unsorted, reverse=True)
+    for i, pert_gen_tok_text in enumerate(pert_gen_tok_texts):
+      print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Perturbed generated text{i+1}  {resonance}={bcolors.ENDC}")
+      print(pert_gen_text[-1], end='\n\n')
     return
 
 
