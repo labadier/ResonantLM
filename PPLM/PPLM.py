@@ -62,7 +62,7 @@ def get_classifier(
 
     return classifier, (1 if class_label=='pos' else 0)
 
-def evaluate_ending( text, length, lower_bound = 0.75, upper_bound = 1.5):
+def evaluate_ending( text, length, lower_bound = 0.75, upper_bound = 1.0):
   
   ending = -1
   for i in '.!;?':
