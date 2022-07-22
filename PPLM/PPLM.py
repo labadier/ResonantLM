@@ -725,7 +725,6 @@ def run_pplm(
         try:
             # untokenize unperturbed text
             pert_gen_text = tokenizer.decode(pert_gen_tok_text[1].tolist()[0])
-            print(len(pert_gen_tok_text[1].tolist()[0]))
             pert_gen_text_modified = evaluate_ending( pert_gen_text, len(pert_gen_tok_text[1].tolist()[0]), length)
             pert_gen_text = pert_gen_text_modified if pert_gen_text_modified else pert_gen_text
             
