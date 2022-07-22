@@ -1,5 +1,6 @@
 from operator import add
 from typing import Optional, Tuple
+from unittest import registerResult
 from matplotlib.pyplot import axis
 
 import numpy as np
@@ -62,7 +63,7 @@ def get_classifier(
 
     return classifier, (1 if class_label=='pos' else 0)
 
-def evaluate_ending( text, length, lower_bound = 0.75, upper_bound = 1.0):
+def evaluate_ending( text, index, length, lower_bound = 0.75, upper_bound = 1.0):
   
   ending = -1
   for i in '.!;?':
@@ -70,8 +71,9 @@ def evaluate_ending( text, length, lower_bound = 0.75, upper_bound = 1.0):
 
   if ending >= length*lower_bound:
     return text[:ending+1]
-  elif len(text.split()) >= length*upper_bound:
+  elif index >= length*upper_bound:
     return text
+
   return False
 
 def top_k_filter(logits, k, probs=False):
@@ -334,7 +336,7 @@ def generate_text_pplm(
     i = 0 
     while True:
 
-        if i >= length and evaluate_ending(tokenizer.decode(output_so_far.tolist()[0]), length):
+        if i >= length and evaluate_ending(tokenizer.decode(output_so_far.tolist()[0]), i, length):
           break
 
         # Get past/probs for current output, except for last word
@@ -723,7 +725,8 @@ def run_pplm(
         try:
             # untokenize unperturbed text
             pert_gen_text = tokenizer.decode(pert_gen_tok_text[1].tolist()[0])
-            pert_gen_text_modified = evaluate_ending( pert_gen_text, length)
+            print(len(pert_gen_tok_text[1].tolist()[0]))
+            pert_gen_text_modified = evaluate_ending( pert_gen_text, len(pert_gen_tok_text[1].tolist()[0]), length)
             pert_gen_text = pert_gen_text_modified if pert_gen_text_modified else pert_gen_text
             
             eot = pert_gen_text.rfind('<|endoftext|>')
