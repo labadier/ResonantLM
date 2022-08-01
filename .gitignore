@@ -12,3 +12,4 @@ data/sentiment140-train.csv
 debug.py
 logs
 tmp.csv
+data/data.faceta.extraversion.csv

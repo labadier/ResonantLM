@@ -749,10 +749,11 @@ def run_pplm(
     pert_gen_tok_texts = [(_text[-2], _text[-1]) for _text in sorted(unsorted, reverse=True)]
 
     # print(pert_gen_tok_texts)
+    
     for i, pert_gen_text in enumerate(pert_gen_tok_texts):
       print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Perturbed generated text{i+1}  {pert_gen_text[-1]}={bcolors.ENDC}")
       print(pert_gen_text[0], end='\n\n')
-    return
+    return [_text[0] for _text in pert_gen_tok_texts]
 
 
 if __name__ == '__main__':
