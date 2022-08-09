@@ -30,6 +30,7 @@ def check_params(args=None):
   parser.add_argument('-gm', metavar='gm', default =lmparams.gm_scale, type=float, help='Scaling for generation distribution')
   parser.add_argument('-bias', metavar='bias', default =lmparams.class_label, type=str, help='Class for Biasing Generation')
   parser.add_argument('-nsamples', metavar='nsamples', default =lmparams.num_samples, type=int, help='Number of samples for generation')
+  parser.add_argument('-wpath', metavar='wpath', default = 'logs', type=int, help='Weight Path')
    
   return parser.parse_args(args)
 
@@ -52,6 +53,7 @@ if __name__ == '__main__':
   gm = parameters.gm
   bias = parameters.bias
   nsamples = parameters.nsamples
+  wpath = parameters.wpath
 
   if mode == 'discriminator':
 
@@ -65,8 +67,9 @@ if __name__ == '__main__':
       text, labels = load_data(path = train_path, task = d_task)
       dataTrain = {'text':text, 'labels': labels}
   
-      history = train_model_CV(model_name=d_task, lang=language, data=dataTrain,
-                            epoches=epoches, batch_size=batch_size, lr=learning_rate, decay=decay, model_mode=mode_weigth)
+      history = train_model_CV(model_name=d_task, lang=language, data=dataTrain, output=wpath,
+                            epoches=epoches, batch_size=batch_size, lr=learning_rate, decay=decay, 
+                            model_mode=mode_weigth)
     
       plot_training(history[-1], language, 'acc')
       exit(0)
