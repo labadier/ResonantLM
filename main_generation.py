@@ -30,7 +30,7 @@ def check_params(args=None):
   parser.add_argument('-gm', metavar='gm', default =lmparams.gm_scale, type=float, help='Scaling for generation distribution')
   parser.add_argument('-bias', metavar='bias', default =lmparams.class_label, type=str, help='Class for Biasing Generation')
   parser.add_argument('-nsamples', metavar='nsamples', default =lmparams.num_samples, type=int, help='Number of samples for generation')
-  parser.add_argument('-wpath', metavar='wpath', default = 'logs', type=int, help='Weight Path')
+  parser.add_argument('-wpath', metavar='wpath', default = 'logs', help='Weight Path')
    
   return parser.parse_args(args)
 
