@@ -8,4 +8,4 @@ phrases = ["Women's Harley Davidson Jacket",
 "5 nights all inclusive hotel accommodation at Disneyland Paris"]
 
 for i in phrases:
-    os.system(f'python main.py -seed "{i}" -dt agreeableness')
+    os.system(f'python main_generation.py -seed "{i}" -dt agreeableness')

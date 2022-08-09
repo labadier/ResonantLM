@@ -1,7 +1,7 @@
 
 class params:
 
-  model = {'en': 'gpt2-medium'} #! TODO change to gpt2-medium
+  model = {'en': 'gpt2-large'} #! TODO change to gpt2-medium
 
   LR, DECAY = 1e-5,  2e-5
   SPLITS = 5
@@ -16,7 +16,7 @@ class params:
 
   seed = "Why you don\'t like him"
   CLASS_SIZE = 2
-  EMBD_SIZE = 1024 #! TODO change to 1024
+  EMBD_SIZE = 1280 #! TODO change to 1024
 
 class bcolors:
   HEADER = '\033[95m'
@@ -92,7 +92,7 @@ class PPLM:
         "pretrained_model": params.model['en'],
     },
     "extraversion": {
-        "path": "logs/v1/extraversion.pt",
+        "path": "logs/extraversion.pt",
         "class_size": 2,
         "embed_size": params.EMBD_SIZE, 
         "default_class": 1,
