@@ -1,4 +1,4 @@
-import argparse, sys, os, numpy as np, torch, random
+import argparse, sys, os, numpy as np, torch, random, csv
 
 from PPLM.Discriminator import train_model, train_model_CV, Discriminator
 from PPLM.Discriminator import ClassificationHead
@@ -102,7 +102,7 @@ if __name__ == '__main__':
       if i.lower()[0] not in parameters.dt.lower():
         continue
 
-      run_pplm(pretrained_model=params.model[language], model_mode=mode_weigth,
+      z = run_pplm(pretrained_model=params.model[language], model_mode=mode_weigth,
               cond_text=seed, num_samples=nsamples, discrim=i.lower(),
               class_label= bias,
               length=lmparams.length, stepsize = lmparams.stepsize, temperature=lmparams.temperature,
@@ -112,4 +112,9 @@ if __name__ == '__main__':
               gm_scale=gm, kl_scale=lmparams.kl_scale, seed=lmparams.seed,
               verbosity=lmparams.verbosity, semantic_weight=semantic_weight, print_unperturbed=printunperturbed)
       
+      with open('experimental_setup.csv', 'a') as csvfile:
+        spamwriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        for i in z:
+          spamwriter.writerow(i)
+
       printunperturbed &= False
