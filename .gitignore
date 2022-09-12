@@ -13,3 +13,4 @@ debug.py
 logs
 tmp.csv
 data/data.faceta.extraversion.csv
+experimental_setup_v*
