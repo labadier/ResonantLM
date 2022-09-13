@@ -105,3 +105,8 @@ def load_data( path = None, eval=False, task='sentiment'):
   labels = data_frame[task.upper()[0]].astype(int).apply(lambda row: int(row == 1)).to_numpy() # 40-60
   print(f"{bcolors.OKCYAN}{bcolors.BOLD}{len(labels)} Examples Loaded with {np.sum(labels)/len(labels):.2f} Positive Balance for {task.upper()}!!{bcolors.ENDC}")
   return data_frame['text'].to_numpy(),  labels
+
+
+def load_data_postgen(path):
+  df = pd.read_csv(path, header=None)
+  return df, {'text':df[8].to_numpy(), 'label':np.zeros(len(df),)}

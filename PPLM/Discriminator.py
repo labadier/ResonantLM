@@ -79,7 +79,7 @@ class Discriminator(torch.nn.Module):
   
   def predict(self, data):
     
-    trainloader, _ = prepareDataLoader(data_train=data, batch_size=128)
+    trainloader, _ = prepareDataLoader(data_train=data, batch_size=128, eval=True)
     
     self.eval()
     with torch.no_grad():
@@ -93,6 +93,7 @@ class Discriminator(torch.nn.Module):
 
       dev_acc = compute_acc('eval', out, log)
       print(f"{bcolors.OKCYAN}{bcolors.BOLD}Dev acc: {dev_acc}{bcolors.ENDC}")
+      return out
   
   def makeOptimizer(self, lr, decay):
     return torch.optim.Adam(self.parameters(), lr=lr, weight_decay=decay)
