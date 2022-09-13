@@ -109,4 +109,4 @@ def load_data( path = None, eval=False, task='sentiment'):
 
 def load_data_postgen(path):
   df = pd.read_csv(path, header=None)
-  return df, {'text':df[8].to_numpy(), 'label':np.zeros(len(df),)}
+  return df, {'text':df[8].to_numpy(), 'labels':np.zeros(len(df),)}
