@@ -91,7 +91,8 @@ if __name__ == '__main__':
                   )
 
       if os.path.isfile(lmparams.DISCRIMINATOR_MODELS_PARAMS[discrim]['path']):
-          model.load(lmparams.DISCRIMINATOR_MODELS_PARAMS[discrim]['path'])
+          model.load(lmparams.DISCRIMINATOR_MODELS_PARAMS[discrim]['path'],
+           torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu"))
       else: 
         print(f"{bcolors.FAIL}{bcolors.BOLD}No Weights Loaded{bcolors.ENDC}")
         exit(1)
