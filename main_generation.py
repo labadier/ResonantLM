@@ -98,7 +98,7 @@ if __name__ == '__main__':
       with open('postgen.csv', 'w') as csfile:
         spamwriter = csv.writer(csfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         for i in range(len(df)):
-          spamwriter.writerow(df.iloc[0].to_list() + [F.softmax(outs[i])[1]])
+          spamwriter.writerow(df.iloc[i].to_list() + [F.softmax(outs[i], dim=-1)[1].item()])
 
   if mode == 'generator':
 
