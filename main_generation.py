@@ -84,11 +84,9 @@ if __name__ == '__main__':
       df, data = load_data_postgen(train_path)
 
       discrim = parameters.dt.lower()
-      model, _ = get_classifier(
-                  discrim,
-                  1,
-                  torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
-                  )
+      model = Discriminator(language=language, 
+                            classifier_head=ClassificationHead(params.CLASS_SIZE, params.EMBD_SIZE),
+                            weigths_mode=mode_weigth)
 
       if os.path.isfile(lmparams.DISCRIMINATOR_MODELS_PARAMS[discrim]['path']):
           model.load(lmparams.DISCRIMINATOR_MODELS_PARAMS[discrim]['path'],
