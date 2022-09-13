@@ -5,7 +5,7 @@ from PPLM.Discriminator import ClassificationHead
 from PPLM.PPLM import run_pplm, get_classifier
 from utils.params import bcolors, params, PPLM as lmparams
 from utils.utils import plot_training, load_data, load_data_postgen
-
+import torch.nn.functional as F
 
 
 torch.manual_seed(0)
@@ -98,7 +98,7 @@ if __name__ == '__main__':
       with open('postgen.csv', 'w') as csfile:
         spamwriter = csv.writer(csfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         for i in range(len(df)):
-          spamwriter.writerow(df.iloc[0].to_list + [outs[i]])
+          spamwriter.writerow(df.iloc[0].to_list() + [F.softmax(outs[i])[1]])
 
   if mode == 'generator':
 
