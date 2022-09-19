@@ -2,10 +2,10 @@ import argparse, sys, os, numpy as np, torch, random, csv
 
 from PPLM.Discriminator import train_model, train_model_CV, Discriminator
 from PPLM.Discriminator import ClassificationHead
-from PPLM.PPLM import run_pplm
+from PPLM.PPLM import run_pplm, get_classifier
 from utils.params import bcolors, params, PPLM as lmparams
-from utils.utils import plot_training, load_data
-
+from utils.utils import plot_training, load_data, load_data_postgen
+import torch.nn.functional as F
 
 
 torch.manual_seed(0)
@@ -79,20 +79,26 @@ if __name__ == '__main__':
       '''
         Get Encodings for each author's message from the Transformer-based encoders
       '''
-      text, labels = load_data(path = train_path, eval = True, task = d_task)
-      data = {'text':text, 'labels': labels}
+      # text, labels = load_data(path = train_path, eval = True, task = d_task)
+      # data = {'text':text, 'labels': labels}
+      df, data = load_data_postgen(train_path)
 
+      discrim = parameters.dt.lower()
       model = Discriminator(language=language, 
                             classifier_head=ClassificationHead(params.CLASS_SIZE, params.EMBD_SIZE),
                             weigths_mode=mode_weigth)
 
-      if os.path.isfile(f"logs/{params.model[language].split('/')[-1]}_1.pt"):
-          model.load(f"logs/{params.model[language].split('/')[-1]}_1.pt")
+      if os.path.isfile(lmparams.DISCRIMINATOR_MODELS_PARAMS[discrim]['path']):
+          model.load(lmparams.DISCRIMINATOR_MODELS_PARAMS[discrim]['path'])
       else: 
         print(f"{bcolors.FAIL}{bcolors.BOLD}No Weights Loaded{bcolors.ENDC}")
         exit(1)
 
-      model.predict(data)
+      outs = model.predict(data)
+      with open('postgen.csv', 'w') as csfile:
+        spamwriter = csv.writer(csfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        for i in range(len(df)):
+          spamwriter.writerow(df.iloc[i].to_list() + [F.softmax(outs[i], dim=-1)[1].item()])
 
   if mode == 'generator':
 
