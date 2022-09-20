@@ -190,3 +190,29 @@ if __name__ == '__main__':
 
     print(f"\r{bcolors.OKGREEN}{bcolors.BOLD}Analyzing Data ok. Wasted {wasted} of {total}{bcolors.ENDC}") 
 
+#%%
+import pandas as pd
+import csv, re
+
+
+def load_keywords_tree(facetas):
+
+  keywords = '' 
+  for f in facetas:
+    with open(f'data/meta_{f}.txt') as file:
+      keywords = '|'.join([i[:-1] for i in file]) if keywords == '' else keywords + '|'.join([i[:-1] for i in file])
+
+  return re.compile(keywords, re.IGNORECASE)
+
+TREE = load_keywords_tree(['openness'])
+file_w = open('data_filtered.csv', 'w')
+spamwriter = csv.writer(file_w, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+spamwriter.writerow(['text'])
+
+with open('data.csv', 'r') as file_r:
+  for text in file_r:
+    if TREE.search(text) is None:
+      continue
+    spamwriter.writerow([text])
+    
+# %%
