@@ -3,7 +3,7 @@
 import json
 import pandas as pd, csv
 
-dirs = '../gpt-2-output-dataset/data/large-762M.test.jsonl'
+dirs = '../gpt-2-output-dataset/data/medium-345M.train.jsonl'
 
 jsonObj = pd.read_json(path_or_buf=dirs, lines=True)
 #%%
@@ -22,9 +22,4 @@ with open('data.csv', 'wt', newline='', encoding="utf-8") as csvfile:
     for text in texts:
           spamwriter.writerow([text])
 
-# %%
-
-from datasets import load_dataset
-
-dataset = load_dataset("bookcorpus")
 # %%
