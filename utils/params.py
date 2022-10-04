@@ -45,7 +45,7 @@ class PPLM:
   num_samples=3
   discrim='sentiment'
   class_label='pos'
-  length=30
+  length=50
   stepsize=0.03
   temperature=1
   top_k=10
@@ -71,7 +71,7 @@ class PPLM:
         "pretrained_model": params.model['en'],
     },
     "conscientiousness": { #! Ready
-        "path": "logs/v1/conscientiousness.pt",
+        "path": "logs/conscientiousness.pt",
         "class_size": 2,
         "embed_size": params.EMBD_SIZE, 
         "default_class": 1,
@@ -85,7 +85,7 @@ class PPLM:
         "pretrained_model": params.model['en'],
     },    
     "openness": {
-        "path": "logs/v1/openness.pt",
+        "path": "logs/openness.pt",
         "class_size": 2,
         "embed_size": params.EMBD_SIZE, 
         "default_class": 1,

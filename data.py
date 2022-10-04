@@ -189,7 +189,7 @@ if __name__ == '__main__':
           spamwriter.writerow([text] + annotations)
 
     print(f"\r{bcolors.OKGREEN}{bcolors.BOLD}Analyzing Data ok. Wasted {wasted} of {total}{bcolors.ENDC}") 
-
+'''
 #%%
 import pandas as pd
 import csv, re
@@ -216,3 +216,4 @@ with open('data.csv', 'r') as file_r:
     spamwriter.writerow([text])
     
 # %%
+'''
