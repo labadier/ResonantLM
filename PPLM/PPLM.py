@@ -761,7 +761,8 @@ def run_pplm(
     for i, pert_gen_text in enumerate(pert_gen_tok_texts):
       print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Perturbed generated text{i+1}  {pert_gen_text[-1]}={bcolors.ENDC}")
       print(pert_gen_text[0], end='\n\n')
-    return [[discrim,gm_scale,cond_text] + _text[-1] + [_text[0]] for i,_text in enumerate(pert_gen_tok_texts)]
+
+    return [[discrim,gm_scale,cond_text] + _text[-1] + getResonanceInfo([_text[0]].replace(cond_text, '')) + [_text[0]] for i,_text in enumerate(pert_gen_tok_texts)]
 
 
 if __name__ == '__main__':
