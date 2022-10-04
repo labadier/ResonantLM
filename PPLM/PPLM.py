@@ -73,7 +73,7 @@ def evaluate_ending( text, index, length, lower_bound = 0.7, upper_bound = 1.0):
   n_text = ' '.join(l[:-1])
 
   if l[-1][-1] in '.!;?' and len(l) > 1:
-    n_text = ' '.join(n_text, l[-1][-1])
+    n_text = ' '.join([n_text, l[-1][-1]])
   ending = len(n_text)
 
   if ending >= length*lower_bound:
