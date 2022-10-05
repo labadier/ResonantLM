@@ -46,7 +46,7 @@ phrases = ["Women's Harley Davidson Jacket",
 
 gm_scales = [0.2, 0.4, 0.6, 0.8] 
 cf = {'O':0.25, 'C':0.2, 'E':0.2, 'A':0.2, 'N':0.25}
-for p in ['O']:
+for p in ['O', 'C', 'E', 'A']:
   print("========== Factea O ==============\n")
   # for gm in gm_scales:
   print("=========== gm: {gm} =============\n")

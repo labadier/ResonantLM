@@ -15,6 +15,10 @@ from utils.params import bcolors, params, PPLM as paramspplm
 
 from data import getResonanceInfo
 
+from nltk.tokenize import sent_tokenize
+import nltk
+nltk.download('punkt')
+
 PPLM_DISCRIM = 2
 SMALL_CONST = 1e-15
 BIG_CONST = 1e10
@@ -63,11 +67,14 @@ def get_classifier(
 
     return classifier, (1 if class_label=='pos' else 0)
 
-def evaluate_ending( text, index, length, lower_bound = 0.75, upper_bound = 1.0):
+def evaluate_ending( text, index, length, lower_bound = 0.7, upper_bound = 1.0):
   
-  ending = -1
-  for i in '.!;?':
-    ending = max(ending, text.rfind(i))
+  l = sent_tokenize(text)
+  n_text = ' '.join(l[:-1])
+
+  if l[-1][-1] in '.!;?' and len(l) > 1:
+    n_text = ' '.join([n_text, l[-1][-1]])
+  ending = len(n_text)
 
   if ending >= length*lower_bound:
     return text[:ending+1]
@@ -754,8 +761,15 @@ def run_pplm(
     for i, pert_gen_text in enumerate(pert_gen_tok_texts):
       print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Perturbed generated text{i+1}  {pert_gen_text[-1]}={bcolors.ENDC}")
       print(pert_gen_text[0], end='\n\n')
-    return [[discrim,gm_scale,cond_text] + _text[-1] + [_text[0]] for i,_text in enumerate(pert_gen_tok_texts)]
+    
+    zt = []
+    for i,_text in enumerate(pert_gen_tok_texts):
+        l = getResonanceInfo(_text[0].replace(cond_text, ''))
+        if l is None:
+            zt += [[0]*5]
+        else: zt += [l]
+    return [[discrim,gm_scale,cond_text] + _text[-1] + zt[i] + [_text[0]] for i,_text in enumerate(pert_gen_tok_texts)]
 
 
 if __name__ == '__main__':
-    pass
+    pass1

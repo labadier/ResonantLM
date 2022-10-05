@@ -72,7 +72,7 @@ class Discriminator(torch.nn.Module):
 
   def forward(self, data):
 
-    ids = self.tokenizer(data['text'], return_tensors='pt', padding=True, max_length=self.max_length).to(device=self.device)
+    ids = self.tokenizer(data['text'], return_tensors='pt', truncation=True, padding=True, max_length=self.max_length).to(device=self.device)
     X = self.average_hidden_states(ids)
 
     return self.classifier_head(X)
