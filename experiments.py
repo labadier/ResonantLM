@@ -59,6 +59,6 @@ cf = {'O':0.25, 'C':0.2, 'E':0.2, 'A':0.2, 'N':0.25}
 for p in ['O']:
   print("========== Factea O ==============\n")
   for gm in kl_scales:
-    print("=========== kl: {gm} =============\n")
+    print(f"=========== kl: {gm} =============\n")
     for i in phrases:
         os.system(f'python main_generation.py -kl_coef {gm} -seed "{i}" -dt {p} -gm {cf[p]}')

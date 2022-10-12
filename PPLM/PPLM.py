@@ -768,8 +768,8 @@ def run_pplm(
         if l is None:
             zt += [[0]*5]
         else: zt += [l]
-    return [[discrim,gm_scale,cond_text] + _text[-1] + zt[i] + [_text[0]] for i,_text in enumerate(pert_gen_tok_texts)]
+    return [[discrim,gm_scale, kl_scale,cond_text] + _text[-1] + zt[i] + [_text[0]] for i,_text in enumerate(pert_gen_tok_texts)]
 
 
 if __name__ == '__main__':
-    pass1
+    pass
