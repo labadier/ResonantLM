@@ -44,11 +44,21 @@ phrases = ["Women's Harley Davidson Jacket",
 ]
 
 
-gm_scales = [0.2, 0.4, 0.6, 0.8] 
+# gm_scales = [0.2, 0.4, 0.6, 0.8] 
+# cf = {'O':0.25, 'C':0.2, 'E':0.2, 'A':0.2, 'N':0.25}
+# for p in ['O', 'C', 'E', 'A']:
+#   print("========== Factea O ==============\n")
+#   # for gm in gm_scales:
+#   print("=========== gm: {gm} =============\n")
+#   for i in phrases:
+#       os.system(f'python main_generation.py -seed "{i}" -dt {p} -gm {cf[p]}')
+
+
+kl_scales = [0.005, 0.008, 0.01] 
 cf = {'O':0.25, 'C':0.2, 'E':0.2, 'A':0.2, 'N':0.25}
-for p in ['O', 'C', 'E', 'A']:
+for p in ['O']:
   print("========== Factea O ==============\n")
-  # for gm in gm_scales:
-  print("=========== gm: {gm} =============\n")
-  for i in phrases:
-      os.system(f'python main_generation.py -seed "{i}" -dt {p} -gm {cf[p]}')
+  for gm in kl_scales:
+    print("=========== kl: {gm} =============\n")
+    for i in phrases:
+        os.system(f'python main_generation.py -kl_coef {gm} -seed "{i}" -dt {p} -gm {cf[p]}')

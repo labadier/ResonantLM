@@ -31,6 +31,7 @@ def check_params(args=None):
   parser.add_argument('-bias', metavar='bias', default =lmparams.class_label, type=str, help='Class for Biasing Generation')
   parser.add_argument('-nsamples', metavar='nsamples', default =lmparams.num_samples, type=int, help='Number of samples for generation')
   parser.add_argument('-wpath', metavar='wpath', default = 'logs', help='Weight Path')
+  parser.add_argument('-kl_coef',type=float, metavar='kl_coef', default = lmparams.kl_scale, help='Kulbac-Leibler loss')
    
   return parser.parse_args(args)
 
@@ -54,6 +55,7 @@ if __name__ == '__main__':
   bias = parameters.bias
   nsamples = parameters.nsamples
   wpath = parameters.wpath
+  kl_coef = parameters.kl_coef
 
   if mode == 'discriminator':
 
@@ -115,7 +117,7 @@ if __name__ == '__main__':
               top_k = lmparams.top_k, sample=lmparams.sample, num_iterations=lmparams.num_iterations,
               grad_length=lmparams.grad_length, horizon_length=lmparams.horizon_length,
               window_length=lmparams.window_length, decay=lmparams.decay, gamma=lmparams.gamma,
-              gm_scale=gm, kl_scale=lmparams.kl_scale, seed=lmparams.seed,
+              gm_scale=gm, kl_scale=kl_coef, seed=lmparams.seed,
               verbosity=lmparams.verbosity, semantic_weight=semantic_weight, print_unperturbed=printunperturbed)
       
       with open('experimental_setup.csv', 'a') as csvfile:
