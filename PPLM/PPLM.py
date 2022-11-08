@@ -1,6 +1,5 @@
 from operator import add
 from typing import Optional, Tuple
-from cv2 import undistort
 import threading
 
 import numpy as np
@@ -527,7 +526,13 @@ def full_text_generation(
 
   for i in range(num_samples):
 
-    threads[i] = threading.Thread(target = generate_text_pplm, args=(model, tokenizer, context, None, device, True,
+    threads[i] = threading.Thread(target = generate_text_pplm, args=(
+        model, 
+        tokenizer, 
+        context, 
+        None, 
+        device, 
+        True,
         classifier,
         class_id,
         length,
@@ -545,9 +550,11 @@ def full_text_generation(
         kl_scale,
         verbosity_level,
         latent_generation_unpert,
+        semantic_weight,
         results,
         i))
     threads[i].start()
+    
    
   for i in range(len(threads)):
     
