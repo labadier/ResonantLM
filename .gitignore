@@ -19,3 +19,6 @@ data.csv
 data*
 datos de unpublished books.xltx
 datos de generated essays.xltx
+example.csv
+diso.csv
+extract_dis.py

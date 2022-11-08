@@ -1,23 +1,19 @@
 from operator import add
 from typing import Optional, Tuple
-from unittest import registerResult
-from matplotlib.pyplot import axis
+from cv2 import undistort
+import threading
 
 import numpy as np
-import torch, os
+import torch, os, gc
 import torch.nn.functional as F
 from torch.autograd import Variable
-from tqdm import trange
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 
-from PPLM.Discriminator import ClassificationHead
-from utils.params import bcolors, params, PPLM as paramspplm
+from text_services.services.languageGeneration.PPLM.Discriminator import ClassificationHead
+from text_services.services.languageGeneration.utils.params import bcolors, params, PPLM as paramspplm
 
-from data import getResonanceInfo
-
+from text_services.services.languageGeneration.data import getResonanceInfo, getBacthResonanceInfo
 from nltk.tokenize import sent_tokenize
-import nltk
-nltk.download('punkt')
 
 PPLM_DISCRIM = 2
 SMALL_CONST = 1e-15
@@ -326,7 +322,9 @@ def generate_text_pplm(
         kl_scale=0.01,
         verbosity_level=REGULAR,
         content_guide=None,
-        semantic_weight=None
+        semantic_weight=None,
+        results = None,
+        index = None
 ):
     output_so_far = None
     if context:
@@ -458,7 +456,9 @@ def generate_text_pplm(
         if verbosity_level >= VERBOSE:
             print(tokenizer.decode(output_so_far.tolist()[0]))
         i +=1
-    return output_so_far, unpert_discrim_loss, loss_in_time
+    if index is None:
+      return output_so_far, unpert_discrim_loss, loss_in_time
+    else: results[index] = output_so_far, unpert_discrim_loss, loss_in_time
 
 def full_text_generation(
         model,
@@ -516,51 +516,55 @@ def full_text_generation(
   if device == 'cuda':
     torch.cuda.empty_cache()
 
-    pert_gen_tok_texts = []
-    discrim_losses = []
-    losses_in_time = []
+  pert_gen_tok_texts_examples = []
+  discrim_losses = []
+  losses_in_time = []
 
   latent_generation_pert_sim = []
-  for i in range(num_samples):
-    pert_gen_tok_text, discrim_loss, loss_in_time = generate_text_pplm( 
-        model=model,
-        tokenizer=tokenizer,
-        context=context,
-        device=device,
-        perturb=True,
-        classifier=classifier,
-        class_label=class_id,
-        length=length,
-        stepsize=stepsize,
-        temperature=temperature,
-        top_k=top_k,
-        sample=sample,
-        num_iterations=num_iterations,
-        grad_length=grad_length,
-        horizon_length=horizon_length,
-        window_length=window_length,
-        decay=decay,
-        gamma=gamma,
-        gm_scale=gm_scale,
-        kl_scale=kl_scale,
-        verbosity_level=verbosity_level,
-        content_guide=latent_generation_unpert,
-        semantic_weight=semantic_weight
-    )
+  
+  threads = [None]*num_samples
+  results = [None]*num_samples
 
-    pert_gen_tok_texts.append(pert_gen_tok_text)
-    hidden_sates_perturbed = model(pert_gen_tok_text).hidden_states
+  for i in range(num_samples):
+
+    threads[i] = threading.Thread(target = generate_text_pplm, args=(model, tokenizer, context, None, device, True,
+        classifier,
+        class_id,
+        length,
+        stepsize,
+        temperature,
+        top_k,
+        sample,
+        num_iterations,
+        grad_length,
+        horizon_length,
+        window_length,
+        decay,
+        gamma,
+        gm_scale,
+        kl_scale,
+        verbosity_level,
+        latent_generation_unpert,
+        results,
+        i))
+    threads[i].start()
+   
+  for i in range(len(threads)):
+    
+    threads[i].join()
+    pert_gen_tok_texts_examples.append(results[i][0])
+    hidden_sates_perturbed = model(results[i][0]).hidden_states
     latent_generation_pert_sim += [torch.cosine_similarity(torch.mean(hidden_sates_perturbed[-1].detach(), axis=1), latent_generation_unpert) ]
 
     if classifier is not None:
-      discrim_losses.append(discrim_loss.data.cpu().numpy())
-    losses_in_time.append(loss_in_time)
+      discrim_losses.append(results[i][1].data.cpu().numpy())
+    losses_in_time.append(results[i][2])
 
   if device == 'cuda':
     torch.cuda.empty_cache()
   
-  pert_gen_tok_texts = zip(latent_generation_pert_sim, pert_gen_tok_texts)
-  return unpert_gen_tok_text, pert_gen_tok_texts, discrim_losses, losses_in_time
+  pert_gen_tok_texts_examples = zip(latent_generation_pert_sim, pert_gen_tok_texts_examples)
+  return unpert_gen_tok_text, pert_gen_tok_texts_examples, discrim_losses, losses_in_time
 
 def run_pplm(
         pretrained_model="gpt2-medium",
@@ -587,7 +591,9 @@ def run_pplm(
         no_cuda=False,
         verbosity='regular',
         semantic_weight = 0.2,
-        print_unperturbed = True
+        print_unperturbed = True,
+        model=None,
+        tokenizer=None
 ):
 
     """
@@ -642,17 +648,18 @@ def run_pplm(
     # load pretrained model
 
     prefix = 'data' if model_mode == 'offline' else ''
-
-    model = GPT2LMHeadModel.from_pretrained(
-        os.path.join(prefix , pretrained_model),
-        output_hidden_states=True,
-        use_cache=True
-    )
+    if model is None:
+      model = GPT2LMHeadModel.from_pretrained(
+          os.path.join(prefix , pretrained_model),
+          output_hidden_states=True,
+          use_cache=True
+      )
     model.to(device)
     model.eval()
 
     # load tokenizer
-    tokenizer = GPT2Tokenizer.from_pretrained(os.path.join(prefix , pretrained_model))
+    if tokenizer is None:
+      tokenizer = GPT2Tokenizer.from_pretrained(os.path.join(prefix , pretrained_model))
 
     # Freeze GPT-2 weights
     for param in model.parameters():
@@ -741,34 +748,29 @@ def run_pplm(
             pert_gen_text = pert_gen_text[: len(pert_gen_text) if eot == -1 else eot+1]
             pert_gen_text = pert_gen_text.replace('<|endoftext|>', '')
             
-            resonance = getResonanceInfo(pert_gen_text)
+            resonance = getResonanceInfo(pert_gen_text, True)
             unsorted += [(resonance['ocean'.find(discrim.lower()[0])], pert_gen_tok_text[0].item(), pert_gen_text, 
-                        [f'{j}' for f, j in zip('OCEAN', resonance)])]
+                        ' '.join([f'{f}: {j}' for f, j in zip('OCEAN', resonance)]))]
                         
         except:
-            pass
+            print('Resonance Didn\'t found out coherence')
 
         # keep the prefix, perturbed seq, original seq for each index
         generated_texts.append(
-            (tokenized_cond_text, pert_gen_tok_text, unpert_gen_tok_text)
-        )
-    print(unsorted)
-    unsorted.sort(reverse=True) 
-    pert_gen_tok_texts = [(_text[-2], _text[-1]) for _text in sorted(unsorted, reverse=True)]
+            (tokenized_cond_text, pert_gen_tok_text, unpert_gen_tok_text))
 
-    # print(pert_gen_tok_texts)
+
+    print(unsorted, resonance)
+    # unsorted = [(annotations['ocean'.find(discrim.lower()[0])], text[0], text[1], 
+    #                 ' '.join([f'{f}: {j}' for f, j in zip('OCEAN', annotations)])) for text, annotations in zip(unsorted, resonance)]
     
+    unsorted.sort(reverse=True)
+    pert_gen_tok_texts = [(_text[-2], _text[-1]) for _text in unsorted]
+
     for i, pert_gen_text in enumerate(pert_gen_tok_texts):
       print(f"{bcolors.OKCYAN}{bcolors.BOLD}= Perturbed generated text{i+1}  {pert_gen_text[-1]}={bcolors.ENDC}")
       print(pert_gen_text[0], end='\n\n')
-    
-    zt = []
-    for i,_text in enumerate(pert_gen_tok_texts):
-        l = getResonanceInfo(_text[0].replace(cond_text, ''))
-        if l is None:
-            zt += [[0]*5]
-        else: zt += [l]
-    return [[discrim,gm_scale, kl_scale,cond_text] + _text[-1] + zt[i] + [_text[0]] for i,_text in enumerate(pert_gen_tok_texts)]
+    return [_text[0] for _text in pert_gen_tok_texts]
 
 
 if __name__ == '__main__':
