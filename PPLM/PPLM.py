@@ -9,10 +9,10 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 
-from text_services.services.languageGeneration.PPLM.Discriminator import ClassificationHead
-from text_services.services.languageGeneration.utils.params import bcolors, params, PPLM as paramspplm
+from PPLM.Discriminator import ClassificationHead
+from utils.params import bcolors, params, PPLM as paramspplm
 
-from text_services.services.languageGeneration.data import getResonanceInfo, getBacthResonanceInfo
+from data import getResonanceInfo, getBacthResonanceInfo
 from nltk.tokenize import sent_tokenize
 
 PPLM_DISCRIM = 2
