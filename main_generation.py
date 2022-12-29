@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
   if mode == 'discriminator':
 
-    d_task = [d_task for d_task in lmparams.DISCRIMINATOR_MODELS_PARAMS.keys() if not d_task.find(parameters.dt.lower())][0]
+    d_task = parameters.dt.lower() #[d_task for d_task in lmparams.DISCRIMINATOR_MODELS_PARAMS.keys() if not d_task.find(parameters.dt.lower())][0]
 
     if phase == 'train':
       if os.path.exists('./logs') == False:

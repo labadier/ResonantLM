@@ -22,3 +22,7 @@ datos de generated essays.xltx
 example.csv
 diso.csv
 extract_dis.py
+gutemberg.csv
+.gitignore
+metadata_enriched.csv
+metadata.csv

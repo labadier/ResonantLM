@@ -105,6 +105,14 @@ class PPLM:
         "default_class": 1,
         "pretrained_model": params.model['en'],
     },
+
+    "gender": {
+        "path": "logs/gender.pt",
+        "class_size": 2,
+        "embed_size": params.EMBD_SIZE, 
+        "default_class": 1,
+        "pretrained_model": params.model['en'],
+    },
 }
 
 

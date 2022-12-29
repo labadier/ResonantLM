@@ -102,6 +102,10 @@ def load_data( path = None, eval=False, task='sentiment'):
     return data_frame['tweet'].to_numpy(),  data_frame['label'].astype(int).to_numpy()
   
   data_frame = pd.read_csv(path)
+  
+  if task == 'gender':
+    return data_frame['text'].to_numpy(),  data_frame['labels'].to_numpy()
+
   labels = data_frame[task.upper()[0]].astype(int).apply(lambda row: int(row == 1)).to_numpy() # 40-60
   print(f"{bcolors.OKCYAN}{bcolors.BOLD}{len(labels)} Examples Loaded with {np.sum(labels)/len(labels):.2f} Positive Balance for {task.upper()}!!{bcolors.ENDC}")
   return data_frame['text'].to_numpy(),  labels
