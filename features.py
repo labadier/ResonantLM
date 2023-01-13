@@ -1,5 +1,5 @@
 import pandas as pd, numpy as np, os, csv
-from nltk.tokenize import sent_tokenize
+from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk import ngrams
 import spacy
 from collections import Counter
@@ -10,16 +10,16 @@ SPACY_MODEL = spacy.load("en_core_web_sm")
 # suffix n-grams
 
 def suffix_ngrams(text, n=3):
-  return [words[-n:] for words in sent_tokenize(text) if len(words) >= n]
+  return [words[-n:] for words in word_tokenize(text) if len(words) >= n]
 
 def preffix_ngrams(text, n=3):
-  return [words[:n] for words in sent_tokenize(text) if len(words) >= n]
+  return [words[:n] for words in word_tokenize(text) if len(words) >= n]
 
 def char_ngrams(text, n=3):
   return [text[i:i+n] for i in range(len(text)-n+1)]
 
 def words_ngrams(text, n=3):
-  return list(ngrams(sent_tokenize(text), n))
+  return list(ngrams(word_tokenize(text), n))
 
 def get_postag(text):
   proc = SPACY_MODEL(text.strip())
@@ -85,7 +85,7 @@ csvfile_male.writerow(['keywords', 'source'])
   
 #compute keys_ngrams_suffix with IG
 
-function = {'suffix_ngrams': suffix_ngrams, 'preffix_ngrams': preffix_ngrams, 'char_ngrams': char_ngrams, 'words_ngrams': words_ngrams}
+function = { 'words_ngrams': words_ngrams, 'postag': get_postag, 'suffix_ngrams': suffix_ngrams, 'preffix_ngrams': preffix_ngrams, 'char_ngrams': char_ngrams}
 for func in function.keys():
   maleInstances = []
   femaleInstances = []
