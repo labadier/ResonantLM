@@ -26,3 +26,5 @@ gutemberg.csv
 .gitignore
 metadata_enriched.csv
 metadata.csv
+keys_female.csv
+keys_male.csv
