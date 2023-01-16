@@ -110,28 +110,36 @@ function = { 'words_ngrams': words_ngrams, 'postag': get_postag, 'suffix_ngrams'
 
 ## filter
 #%%
-def check(text, filters):
+def check(text, gender):
   
+  filters
+  if gender == 'male':
+    filters = filtersMale
+  else:
+    filters = filtersFemale
+
   transforms = []
+  
   for func in function.keys():
     transforms += function[func](text)
 
-  return len(set(transforms).intersection(filters)) > 0
+  return len(set(transforms).intersection(filters))
 
-df = pd.read_csv('gutemberg.csv')
+# df = pd.read_csv('gutemberg.csv')
 
 filtersMale = set(pd.read_csv('keys_male.csv')['keywords'].to_list())
 filtersFemale = set(pd.read_csv('keys_female.csv')['keywords'].to_list())
 
-with open('gutemberg_filtered.csv', 'wt', newline='', encoding="utf-8") as csvfile:
-  csvwriter = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-  csvwriter.writerow(['text', 'label'])
+# with open('gutemberg_filtered.csv', 'wt', newline='', encoding="utf-8") as csvfile:
+#   csvwriter = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+#   csvwriter.writerow(['text', 'label'])
 
-  for i in range(len(df)):
-    if df['label'].iloc[i] == 1 and not check(df['text'].iloc[i], filtersMale):
-      continue
-    elif df['label'].iloc[i] == 0 and not check(df['text'].iloc[i], filtersFemale):
-      continue
+#   for i in range(len(df)):
 
-    csvwriter.writerow([df['text'].iloc[i], df['label'].iloc[i]])
+#     if df['label'].iloc[i] == 1 and not check(df['text'].iloc[i], filtersMale):
+#       continue
+#     elif df['label'].iloc[i] == 0 and not check(df['text'].iloc[i], filtersFemale):
+#       continue
+
+#     csvwriter.writerow([df['text'].iloc[i], df['label'].iloc[i]])
 # %%

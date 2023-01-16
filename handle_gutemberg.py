@@ -2,6 +2,7 @@ import pandas as pd, numpy as np, os, csv
 from nltk.tokenize import sent_tokenize
 from glob import glob
 from tqdm import tqdm
+from features import check
 
 
 male = pd.read_csv('metadata/metadata_enriched.csv', sep = '\t')
@@ -44,7 +45,12 @@ def save_examples(file, user, gender):
       
       texts.append(line)
 
-    texts = sent_tokenize(' '.join(texts))
+    texts = sent_tokenize(' '.join(texts.strip().split('\n')))
+    texts = [(text, check(text)) for text in texts ]
+
+    texts.sort(key=lambda x: x[1], reverse=True)
+    texts = [text[0] for i in range(len(texts)) if i < min(len(texts)*0.1, 200)]
+
     for text in texts:
       spamwriter.writerow([text])
   
@@ -65,7 +71,7 @@ for i in iter:
 
 
 df = pd.DataFrame(df)
-df.to_csv('data/gutemberg.csv', index=False)
+df.to_csv('data/gutemberg2.0.csv', index=False)
 
 print(f'male\n mean: {np.mean(mline):.3f} max: {np.max(mline):.3f} min: {np.min(mline):.3f} std: {np.std(mline):.3f}')
 print(f'female\n mean: {np.mean(fline):.3f} max: {np.max(fline):.3f} min: {np.min(fline):.3f} std: {np.std(fline):.3f}')
