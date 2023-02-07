@@ -6,7 +6,7 @@ import numpy as np
 import torch, os, gc
 import torch.nn.functional as F
 from torch.autograd import Variable
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from transformers import BloomForCausalLM, AutoTokenizer
 
 from PPLM.Discriminator import ClassificationHead
 from utils.params import bcolors, params, PPLM as paramspplm
@@ -656,7 +656,7 @@ def run_pplm(
 
     prefix = 'data' if model_mode == 'offline' else ''
     if model is None:
-      model = GPT2LMHeadModel.from_pretrained(
+      model = BloomForCausalLM.from_pretrained(
           os.path.join(prefix , pretrained_model),
           output_hidden_states=True,
           use_cache=True
@@ -666,7 +666,7 @@ def run_pplm(
 
     # load tokenizer
     if tokenizer is None:
-      tokenizer = GPT2Tokenizer.from_pretrained(os.path.join(prefix , pretrained_model))
+      tokenizer = AutoTokenizer.from_pretrained(os.path.join(prefix , pretrained_model))
 
     # Freeze GPT-2 weights
     for param in model.parameters():

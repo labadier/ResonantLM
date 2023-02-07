@@ -68,7 +68,7 @@ class Discriminator(torch.nn.Module):
     avg_hidden = torch.sum(masked_hidden, dim=1) / (
                 torch.sum(mask, dim=1).detach() + params.EPSILON
         )
-    return avg_hidden
+    return avg_hidden.detach()
 
   def forward(self, data):
 

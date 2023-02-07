@@ -1,4 +1,4 @@
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from transformers import BloomForCausalLM, AutoTokenizer
 from torch.utils.data import Dataset, DataLoader
 from matplotlib import pyplot as plt
 
@@ -12,8 +12,8 @@ def HugginFaceLoad(language, weigths_source):
 
   prefix = 'data' if weigths_source == 'offline' else ''
 
-  model = GPT2LMHeadModel.from_pretrained(os.path.join(prefix , params.model[language]))
-  tokenizer = GPT2Tokenizer.from_pretrained(os.path.join(prefix , params.model[language]))
+  model = BloomForCausalLM.from_pretrained(os.path.join(prefix , params.model[language]))
+  tokenizer = AutoTokenizer.from_pretrained(os.path.join(prefix , params.model[language]))
   tokenizer.pad_token = tokenizer.bos_token
   
   return tokenizer, model
