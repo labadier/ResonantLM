@@ -16,7 +16,7 @@ class params:
 
   seed = "Why you don\'t like him"
   CLASS_SIZE = 2
-  EMBD_SIZE = 1024 #! TODO change to 1024
+  EMBD_SIZE = 1536 #! TODO change to 1024
 
 class bcolors:
   HEADER = '\033[95m'
