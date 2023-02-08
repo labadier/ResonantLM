@@ -743,31 +743,31 @@ def run_pplm(
     
     # iterate through the perturbed texts
     for i, pert_gen_tok_text in enumerate(pert_gen_tok_texts):
-        try:
-            # untokenize unperturbed text
-            pert_gen_text = tokenizer.decode(pert_gen_tok_text[1].tolist()[0])
-            pert_gen_text_modified = evaluate_ending( pert_gen_text, len(pert_gen_tok_text[1].tolist()[0]), length)
-            pert_gen_text = pert_gen_text_modified if pert_gen_text_modified else pert_gen_text
-            
-            eot = pert_gen_text.rfind('<|endoftext|>')
-            pert_gen_text = pert_gen_text[: len(pert_gen_text) if not eot else eot]
-            eot = pert_gen_text.rfind('.')
-            pert_gen_text = pert_gen_text[: len(pert_gen_text) if eot == -1 else eot+1]
-            pert_gen_text = pert_gen_text.replace('<|endoftext|>', '')
-            
-            resonance = getResonanceInfo(pert_gen_text, True)
-            unsorted += [(resonance['ocean'.find(discrim.lower()[0])], pert_gen_tok_text[0].item(), pert_gen_text, 
-                        ' '.join([f'{f}: {j}' for f, j in zip('OCEAN', resonance)]))]
-                        
-        except:
-            print('Resonance Didn\'t found out coherence')
+        # try:
+        # untokenize unperturbed text
+        pert_gen_text = tokenizer.decode(pert_gen_tok_text[1].tolist()[0])
+        pert_gen_text_modified = evaluate_ending( pert_gen_text, len(pert_gen_tok_text[1].tolist()[0]), length)
+        pert_gen_text = pert_gen_text_modified if pert_gen_text_modified else pert_gen_text
+        
+        eot = pert_gen_text.rfind('<|endoftext|>')
+        pert_gen_text = pert_gen_text[: len(pert_gen_text) if not eot else eot]
+        eot = pert_gen_text.rfind('.')
+        pert_gen_text = pert_gen_text[: len(pert_gen_text) if eot == -1 else eot+1]
+        pert_gen_text = pert_gen_text.replace('<|endoftext|>', '')
+        
+        resonance = getResonanceInfo(pert_gen_text, True)
+        unsorted += [(resonance['ocean'.find(discrim.lower()[0])], pert_gen_tok_text[0].item(), pert_gen_text, 
+                    ' '.join([f'{f}: {j}' for f, j in zip('OCEAN', resonance)]))]
+                    
+        # except:
+        #     print('Resonance Didn\'t found out coherence')
 
         # keep the prefix, perturbed seq, original seq for each index
         generated_texts.append(
             (tokenized_cond_text, pert_gen_tok_text, unpert_gen_tok_text))
 
 
-    print(unsorted, resonance)
+    print(unsorted)
     # unsorted = [(annotations['ocean'.find(discrim.lower()[0])], text[0], text[1], 
     #                 ' '.join([f'{f}: {j}' for f, j in zip('OCEAN', annotations)])) for text, annotations in zip(unsorted, resonance)]
     
