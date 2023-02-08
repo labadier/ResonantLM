@@ -684,7 +684,7 @@ def run_pplm(
               print(f"{bcolors.FAIL}{bcolors.BOLD}Insert conditional text{bcolors.ENDC}")
               exit(1)
         tokenized_cond_text = tokenizer.encode(
-            tokenizer.bos_token + raw_text,
+            raw_text,
             add_special_tokens=False
         )
 

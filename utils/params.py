@@ -85,7 +85,7 @@ class PPLM:
         "pretrained_model": params.model['en'],
     },    
     "openness": {
-        "path": "logs/openness.pt",
+        "path": "logs/openness_bloom.pt",
         "class_size": 2,
         "embed_size": params.EMBD_SIZE, 
         "default_class": 1,
