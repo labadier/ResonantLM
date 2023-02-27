@@ -64,7 +64,6 @@ class Discriminator(torch.nn.Module):
 
     mask = ids.attention_mask.ne(0).unsqueeze(2).repeat(1, 1, self.embed_size).float().to(self.device).detach()
     hidden_states = self.encoder.transformer(**ids).last_hidden_state
-    print(hidden_states.shape)
     masked_hidden = hidden_states * mask
     avg_hidden = torch.sum(masked_hidden, dim=1) / (
                 torch.sum(mask, dim=1).detach() + params.EPSILON
