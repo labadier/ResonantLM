@@ -1,7 +1,7 @@
 
 class params:
 
-  model = {'en': 'bigscience/bloom-1b1'} #! TODO change to gpt2-medium
+  model = {'en': 'bigscience/bloom-1b7'} #! TODO change to gpt2-medium
 
   LR, DECAY = 1e-5,  2e-5
   SPLITS = 5
